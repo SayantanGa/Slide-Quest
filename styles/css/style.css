@@ -1,0 +1,41 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0; }
+
+html {
+  font-size: 100%;
+  scroll-behavior: smooth; }
+
+.wrapper {
+  padding: 1rem; }
+
+.arena {
+  margin: 2rem; }
+  .arena__img {
+    height: 80vh; }
+
+#puzzleCanvas {
+  border: 1px solid black; }
+
+.row {
+  display: flex;
+  width: 100%;
+  flex-direction: row; }
+  .row .col-1-of-2-uneven-1 {
+    flex: 10%; }
+  .row .col-1-of-2-uneven-2 {
+    flex: 90%; }
+  .row .col-1-of-3-uneven-1,
+  .row .col-1-of-3-uneven-3 {
+    flex: 10%; }
+  .row .col-1-of-3-uneven-2 {
+    flex: 80%; }
+
+.column {
+  display: flex;
+  flex-direction: column; }
+  .column .row-1-of-2-uneven-1 {
+    flex: 10%; }
+  .column .row-1-of-2-uneven-2 {
+    flex: 80%; }

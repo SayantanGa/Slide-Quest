@@ -1,0 +1,32 @@
+.row{
+    display: flex;
+    width: 100%;
+    flex-direction: row;
+
+    .col-1-of-2-uneven-1{
+        flex: 10%;
+    }
+    .col-1-of-2-uneven-2{
+        flex: 90%;
+    }
+
+    .col-1-of-3-uneven-1,
+    .col-1-of-3-uneven-3{
+        flex: 10%;
+    }
+    .col-1-of-3-uneven-2{
+        flex: 80%;
+    }
+}
+
+.column{
+    display: flex;
+    flex-direction: column;
+
+    .row-1-of-2-uneven-1{
+        flex: 10%;
+    }
+    .row-1-of-2-uneven-2{
+        flex: 80%;
+    }
+}
