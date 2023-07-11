@@ -1,12 +1,24 @@
 .arena{
-    margin: 2rem;
 
-    &__img{
-        height: 80vh;
+    &__img,
+    &__table{
+        table-layout: fixed;
+        height: 30rem;
+        width: 30rem;
+        margin: 0 auto;
+        padding: 1rem;
+        border: 1px solid black;
+        text-align: center;
     }
 }
 
-#puzzleCanvas {
-    border: 1px solid black;
-  }
+.tile{
+    border: 1px solid bisque;
+    padding: 1px;
+    transform: translateX(0) translateY(0);
+}
+
+.blank{
+    transform: translateX(0) translateY(0);
+}
   
