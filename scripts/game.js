@@ -1,3 +1,6 @@
+/*************************************************   */
+const ABS = Math.abs
+
 /************************Function Definitions**********************/
 
 /**
@@ -59,37 +62,33 @@ function setArena() {
 
 
 function moveUp (tile, step = 1) {
-  tile.dataset.row -= step
-  getTranslateXY(tile.style.transform).then(([x, y]) => {
-    tile.style.transform = `translateX(${x}%) translateY(${y-101*step}%)`
-  })
+  tile.dataset.row = Number(tile.dataset.row) - step
+  let [x, y] = getTranslateXY(tile.style.transform)
+  tile.style.transform = `translateX(${x}%) translateY(${y-101*step}%)`
 }
 
 function moveDown (tile, step = 1) {
-  tile.dataset.row += step
-  getTranslateXY(tile.style.transform).then(([x, y]) => {
-    tile.style.transform = `translateX(${x}%) translateY(${y + 101 * step}%)`
-  })
+  tile.dataset.row = Number(tile.dataset.row) + step
+  let [x, y] = getTranslateXY(tile.style.transform)
+  tile.style.transform = `translateX(${x}%) translateY(${y + 101 * step}%)`
 }
 
 function moveLeft (tile, step = 1) {
-  tile.dataset.col  -= step
-  getTranslateXY(tile.style.transform).then(([x, y]) => {
-    tile.style.transform = `translateX(${x - 101*step}%) translateY(${y}%)`
-  })
+  tile.dataset.col = Number(tile.dataset.col) - step
+  let [x, y] = getTranslateXY(tile.style.transform)
+  tile.style.transform = `translateX(${x - 101*step}%) translateY(${y}%)`
 }
 
 function moveRight (tile, step = 1) {
-  tile.dataset.col += step
-  getTranslateXY(tile.style.transform).then(([x, y]) => {
-    tile.style.transform = `translateX(${x + step*101}%) translateY(${y}%)`
-  })
+  tile.dataset.col = Number(tile.dataset.col) + step
+  let [x, y] = getTranslateXY(tile.style.transform)
+  tile.style.transform = `translateX(${x + step*101}%) translateY(${y}%)`
 }
    
 
 function getTranslateXY(s) {
   const regex = /translateX\(([-\d.]+)%\) translateY\(([-\d.]+)%\)/
-  const matches = str.match(regex)
+  const matches = s.match(regex)
   if (matches) {
     const x = parseInt(matches[1])
     const y = parseInt(matches[2])
@@ -97,14 +96,31 @@ function getTranslateXY(s) {
   }
 }
 
-function tileAtPos([x, y]) {
+function tileAtPos(x, y) {
   return document.querySelector(`[data-row="${x}"][data-col="${y}"]`)
 }
 
 function playTiles(clickedTilePos) {
-  let targetMove = Array(1*clickedTilePos.row - 1*blankTile.dataset.row, 1*clickedTilePos.col - 1*blankTile.dataset.col)
-  if (targetMove[0] && targetMove[1] == 0) {
-    /////////////////CODE FROM HERE////////////////////
+  console.log("clickedTilePos:", clickedTilePos);
+  let targetMove = Array(1 * clickedTilePos.row - 1 * blankTile.dataset.row, 1 * clickedTilePos.col - 1 * blankTile.dataset.col);
+  console.log("targetMove:", targetMove);
+  if (targetMove[0] && targetMove[1]) {
+    console.log("Returning early");
+    return;
+  } else if (targetMove[0]) {
+    for (let i = 1; i <= ABS(targetMove[0]); i++) {
+      console.log("Moving up/down:", i);
+      (targetMove[0] > 0 ? moveUp : moveDown)(tileAtPos(1 * blankTile.dataset.row + i*(targetMove[0] > 0 ? 1 : -1), 1 * blankTile.dataset.col), 1);
+    }
+    console.log("Moving up/down...:", ABS(targetMove[0]));
+    (targetMove[0] < 0 ? moveUp : moveDown)(blankTile, ABS(targetMove[0]));
+  } else if (targetMove[1]) {
+    for (let i = 1; i <= ABS(targetMove[1]); i++) {
+      console.log("Moving left/right:", i);
+      (targetMove[1] > 0 ? moveLeft : moveRight)(tileAtPos(1 * blankTile.dataset.row, 1 * blankTile.dataset.col + i*(targetMove[1] > 0 ? 1 : -1)), 1);
+    }
+    console.log("Moving left/right:", ABS(targetMove[1]));
+    (targetMove[1] < 0 ? moveLeft : moveRight)(blankTile, ABS(targetMove[1]));
   }
 }
 
@@ -123,5 +139,9 @@ const arenaTable = document.querySelector('.arena__table')
 /********************************Main Code****************************  */
   
   setArena()
+  document.querySelectorAll('.tile').forEach(tile => tile.style.transform = 'translateX(0%) translateY(0%)')
+  document.querySelectorAll('.blank').forEach(tile => tile.style.transform = 'translateX(0%) translateY(0%)')
 
   const blankTile = document.querySelector('.blank')
+
+  arenaTable.addEventListener('click', (e) => playTiles(e.target.dataset))

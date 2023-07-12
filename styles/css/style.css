@@ -21,11 +21,7 @@ html {
 
 .tile {
   border: 1px solid bisque;
-  padding: 1px;
-  transform: translateX(0) translateY(0); }
-
-.blank {
-  transform: translateX(0) translateY(0); }
+  padding: 1px; }
 
 .row {
   display: flex;
