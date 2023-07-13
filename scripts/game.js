@@ -1,39 +1,82 @@
 /*************************************************   */
-const ABS = Math.abs
+
+class timer {
+  constructor() {
+    this.msec = 0
+    this.sec = 0
+    this.mins = 0
+    this.run = true
+    this.totMsec = 0
+    this.time = ''
+  }
+count(){
+  if (this.run) {
+    this.msec++
+    this.totMsec++
+    if (this.msec === 100) {
+      this.sec++
+      this.msec = 0
+    }
+    if (this.sec === 60) {
+      this.mins++
+      this.sec = 0
+    }
+    this.time = `${('0'+this.mins).slice(-2)} : ${('0'+this.sec).slice(-2)} . ${this.msec}`
+    document.querySelector('#time').textContent = this.time
+    setTimeout(this.count.bind(this), 10)
+  }
+}
+}
+
+class userScore {
+  constructor(timeInMsec, time, moves) {
+    this.timeInMsec = timeInMsec
+    this.time = time
+    this.moves = moves
+    let current = new Date();
+    let cDate = current.getFullYear() + '-' + (current.getMonth() + 1) + '-' + current.getDate();
+    let cTime = current.getHours() + ":" + current.getMinutes() + ":" + current.getSeconds();
+    this.date = cDate + ' ' + cTime; 
+}
+}
 
 /************************Function Definitions**********************/
 
-/**
- * Shuffles the elements of an array in place.
- *
- * @param {Array} array - The array to be shuffled.
- * @return {Array} array - The shuffled array.
- */
-function shuffleArray(array) {
-    array.sort(() => Math.random() - 0.5)
-    return array
+function incrementMoves(){
+  moves++;
+  document.querySelector('#moves').textContent = moves
 }
 
-function shuffleArraySolvable(array) {
-  array.sort(() => Math.random() - 0.5)
-  //
-    let numInversions = 0
-    for (let i = 0; i < array.length-1; i++) {
-      if (array[i]==0 || array[i+1]==0)
-        continue
-      else{
-        if (array[i]>array[i+1])
-          numInversions++
+function shuffleArray(array) {
+  const getInversions = (arr) => {
+    let inversions = 0
+    for (let i = 0; i < arr.length - 1; i++) {
+      if (arr[i] === 0) continue
+      for (let j = i + 1; j < arr.length; j++) {
+        if (arr[j] === 0) continue
+        if (arr[i] > arr[j]) inversions++
       }
     }
-    //
-    let emptyTileRowFromBelow = numRow - Math.floor(array.indexOf(0)/numCol)
-    const isSolvable = numCol%2 ? !numInversions%2 : emptyTileRowFromBelow%2 ? !numInversions%2 : numInversions%2
-    //swapToMakeSolvabe
-    if (!isSolvable)
-      (array.indexOf(0) === 0 || array.indexOf(0) === 1) ? [array[array.length-1], array[array.length-2]] = [array[array.length-2], array[array.length-1]] : [array[0], array[1]] = [array[1], array[0]]
-    return array
+    return inversions
   }
+  const isSolvable = (arr) => {
+    const inversions = getInversions(arr)
+    const emptyTileRowFromBelow =
+      numRow - Math.floor(arr.indexOf(0) / numCol)
+    return (
+      (numCol % 2 && inversions % 2 === 0) ||
+      (numCol % 2 === 0 &&
+        ((emptyTileRowFromBelow % 2 === 0 && inversions % 2 === 1) ||
+          (emptyTileRowFromBelow % 2 === 1 && inversions % 2 === 0)))
+    )
+  }
+  let arrayCopy = array.slice()
+  do {
+    arrayCopy.sort(() => Math.random() - 0.5)
+  } while (solvable && !isSolvable(arrayCopy))
+
+  return arrayCopy
+}
 
 /**
 * Generates an HTML string representing the arena table based on the given data array.
@@ -50,41 +93,42 @@ function setArena() {
     outputString += '<tr>'
     for(let j = 0; j < numCol; j++){
       if (dataArray[i * numCol + j] === 0){
-        outputString += `<td class="blank" data-row = ${i} data-col = ${j} ></td>`
+        outputString += `<td class="blank" data-row = ${i} data-col = ${j} data-value = 0 ></td>`
       } else {
-        outputString += `<td class="tile" data-row = ${i} data-col = ${j} >` + dataArray[i * numCol + j] + '</td>'
+        outputString += `<td class="tile" data-row = ${i} data-col = ${j} data-value = ${dataArray[i * numCol + j]} >` + dataArray[i * numCol + j] + '</td>'
       }
     }
     outputString += '</tr>\n'
   }
   arenaTable.innerHTML = outputString
+  playerTime = new timer()
+  playerTime.count()
 }
 
 
-function moveUp (tile, step = 1) {
+function moveVertical (tile, step, animate = true) {
   tile.dataset.row = Number(tile.dataset.row) - step
   let [x, y] = getTranslateXY(tile.style.transform)
-  tile.style.transform = `translateX(${x}%) translateY(${y-101*step}%)`
+  if (animate) {
+    tile.classList.add('zoom-animation')
+  }
+  tile.style.transform = `translateX(${x}%) translateY(${y-100*step}%)`
+  setTimeout(() => {
+    tile.classList.remove('zoom-animation')
+  }, 250);
 }
 
-function moveDown (tile, step = 1) {
-  tile.dataset.row = Number(tile.dataset.row) + step
-  let [x, y] = getTranslateXY(tile.style.transform)
-  tile.style.transform = `translateX(${x}%) translateY(${y + 101 * step}%)`
-}
-
-function moveLeft (tile, step = 1) {
+function moveHorizontal (tile, step, animate = true) {
   tile.dataset.col = Number(tile.dataset.col) - step
   let [x, y] = getTranslateXY(tile.style.transform)
-  tile.style.transform = `translateX(${x - 101*step}%) translateY(${y}%)`
-}
-
-function moveRight (tile, step = 1) {
-  tile.dataset.col = Number(tile.dataset.col) + step
-  let [x, y] = getTranslateXY(tile.style.transform)
-  tile.style.transform = `translateX(${x + step*101}%) translateY(${y}%)`
-}
-   
+  if (animate) {
+    tile.classList.add('zoom-animation')
+  }
+  tile.style.transform = `translateX(${x - 100*step}%) translateY(${y}%)`
+  setTimeout(() => {
+    tile.classList.remove('zoom-animation')
+  }, 200);
+}  
 
 function getTranslateXY(s) {
   const regex = /translateX\(([-\d.]+)%\) translateY\(([-\d.]+)%\)/
@@ -97,40 +141,96 @@ function getTranslateXY(s) {
 }
 
 function tileAtPos(x, y) {
+  if (!(x >= 0 && x < numRow && y >= 0 && y < numCol)) {
+    return
+  }
   return document.querySelector(`[data-row="${x}"][data-col="${y}"]`)
 }
 
 function playTiles(clickedTilePos) {
-  console.log("clickedTilePos:", clickedTilePos);
-  let targetMove = Array(1 * clickedTilePos.row - 1 * blankTile.dataset.row, 1 * clickedTilePos.col - 1 * blankTile.dataset.col);
-  console.log("targetMove:", targetMove);
-  if (targetMove[0] && targetMove[1]) {
-    console.log("Returning early");
-    return;
+  if (!clickedTilePos) {
+    return
+  }
+  let targetMove = Array(1 * clickedTilePos.row - 1 * blankTile.dataset.row, 1 * clickedTilePos.col - 1 * blankTile.dataset.col)
+  if (!targetMove[0] == !targetMove[1]) {
+    return
   } else if (targetMove[0]) {
-    for (let i = 1; i <= ABS(targetMove[0]); i++) {
-      console.log("Moving up/down:", i);
-      (targetMove[0] > 0 ? moveUp : moveDown)(tileAtPos(1 * blankTile.dataset.row + i*(targetMove[0] > 0 ? 1 : -1), 1 * blankTile.dataset.col), 1);
+    for (let i = Math.sign(targetMove[0]); Math.abs(i) <= Math.abs(targetMove[0]); i += Math.sign(targetMove[0])) {
+      moveVertical(tileAtPos(1 * blankTile.dataset.row + i, 1 * blankTile.dataset.col), Math.sign(targetMove[0])) 
     }
-    console.log("Moving up/down...:", ABS(targetMove[0]));
-    (targetMove[0] < 0 ? moveUp : moveDown)(blankTile, ABS(targetMove[0]));
+    moveVertical(blankTile, -targetMove[0], false);
   } else if (targetMove[1]) {
-    for (let i = 1; i <= ABS(targetMove[1]); i++) {
-      console.log("Moving left/right:", i);
-      (targetMove[1] > 0 ? moveLeft : moveRight)(tileAtPos(1 * blankTile.dataset.row, 1 * blankTile.dataset.col + i*(targetMove[1] > 0 ? 1 : -1)), 1);
+    for (let i = Math.sign(targetMove[1]); Math.abs(i) <= Math.abs(targetMove[1]); i += Math.sign(targetMove[1])) {
+      moveHorizontal(tileAtPos(1 * blankTile.dataset.row, 1 * blankTile.dataset.col + i), Math.sign(targetMove[1]))
     }
-    console.log("Moving left/right:", ABS(targetMove[1]));
-    (targetMove[1] < 0 ? moveLeft : moveRight)(blankTile, ABS(targetMove[1]));
+    moveHorizontal(blankTile, -targetMove[1], false)
+  }
+  incrementMoves()
+  if (isWinnerMove()) {
+    displayWin()
   }
 }
 
+function isWinnerMove() {
+  for (let i = 0; i < numRow; i++) {
+    for (let j = 0; j < numCol; j++) {
+      if (tileAtPos(i, j).dataset.value != solArray[i * numCol + j]) {
+        return false
+      }
+    }
+  }
+  return true
+}
+
+function displayWin() {
+  document.querySelector('.winner-alert').classList.remove('hidden')
+  document.querySelector('.winner-alert__time').textContent = `${('0'+playerTime.mins).slice(-2)} : ${('0'+playerTime.sec).slice(-2)} . ${('0'+playerTime.msec).slice(-2)}`
+  document.querySelector('.winner-alert__moves').textContent = moves
+  playerTime.run = false
+  document.querySelector('.winner-alert__show-leaderboard').addEventListener('click', () => {
+    document.querySelector('.winner-alert').classList.add('hidden')
+    document.querySelector('.leaderboard').classList.remove('hidden')
+  })
+}
+
+function keyPressHandler(e) {
+  if (['ArrowDown','S', 's'].includes(e.key)) {
+    playTiles(tileAtPos(1 * blankTile.dataset.row + 1, 1 * blankTile.dataset.col).dataset)
+  } else if (['ArrowUp','W', 'w'].includes(e.key)) {
+    playTiles(tileAtPos(1 * blankTile.dataset.row - 1, 1 * blankTile.dataset.col).dataset)
+  } else if (['ArrowLeft','A', 'a'].includes(e.key)) {
+    playTiles(tileAtPos(1 * blankTile.dataset.row, 1 * blankTile.dataset.col - 1).dataset)
+  } else if (['ArrowRight','D', 'd'].includes(e.key)) {
+    playTiles(tileAtPos(1 * blankTile.dataset.row, 1 * blankTile.dataset.col + 1).dataset)
+  }
+}
+
+function pauseOrResumeGame(timer) {
+  if (timer.run) {
+    timer.run = false
+    tiles.forEach(tile => tile.classList.add('hidden'))
+    document.querySelector('.pause').textContent = 'RESUME'
+  } else {
+    timer.run = true
+    timer.count()
+    tiles.forEach(tile => tile.classList.remove('hidden'))
+    document.querySelector('.pause').textContent = 'PAUSE'
+  }
+}
+
+function constructLeaderboard() {
+
+}
 
 /********************Variable Declarations*********************/
 
 const solvable = true
 const numRow = 4 //DEBUG
 const numCol = 4 //DEBUG
-const dataArray = (solvable?shuffleArraySolvable:shuffleArray)(Array.from({length: numRow * numCol}, (_, i) => i))
+var moves = 0
+var playerTime
+const solArray = Array.from({length: numRow * numCol - 1}, (_, k) => k + 1);  solArray.push(0)
+const dataArray = shuffleArray(solArray)
 
 const arenaTable = document.querySelector('.arena__table')
 
@@ -138,10 +238,13 @@ const arenaTable = document.querySelector('.arena__table')
 
 /********************************Main Code****************************  */
   
-  setArena()
-  document.querySelectorAll('.tile').forEach(tile => tile.style.transform = 'translateX(0%) translateY(0%)')
-  document.querySelectorAll('.blank').forEach(tile => tile.style.transform = 'translateX(0%) translateY(0%)')
+setArena()
+document.querySelectorAll('.tile').forEach(tile => tile.style.transform = 'translateX(0%) translateY(0%)')
+document.querySelectorAll('.blank').forEach(tile => tile.style.transform = 'translateX(0%) translateY(0%)')
 
-  const blankTile = document.querySelector('.blank')
+const blankTile = document.querySelector('.blank')
+const tiles = document.querySelectorAll('.tile')
 
-  arenaTable.addEventListener('click', (e) => playTiles(e.target.dataset))
+arenaTable.addEventListener('click', (e) => playTiles(e.target.dataset))
+document.addEventListener('keydown', (e) => keyPressHandler(e))
+document.querySelector('.pause').addEventListener('click', () => pauseOrResumeGame(playerTime))

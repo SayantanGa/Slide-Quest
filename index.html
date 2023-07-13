@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Slide Quest | Your Adventure down the tiles!</title>
     <link rel="stylesheet" href="styles/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="wrapper">
-        <div class="row">
+        <div class="row navbar">
             <div class="col-1-of-3-uneven-1 scorebox">
-                <p class="scorebox__time">Time: <span id="time">01:23</span></p>
-                <p class="scorebox__moves">Moves: <span id="moves">1</span></p>
+                <p class="scorebox__el scorebox__time">Time: <br /><span id="time">00:20</span></p>
+                <p class="scorebox__el scorebox__moves">Moves: <span id="moves">0</span></p>
             </div>
             <div class="col-1-of-3-uneven-2"></div>
             <div class="col-1-of-3-uneven-3 logo-box">
@@ -19,15 +22,33 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-1-of-2-uneven-1 column game-controls">
-                <div class="row-1-of-2-uneven-1">🌗</div>
-                <div class="row-1-of-2-uneven-1">⏸</div>
-                <div class="row-1-of-2-uneven-2">&nbsp;</div>
+            <div class="col-1-of-2-uneven-1 column navbar game-controls">
+                <p class="pause">PAUSE</p>
             </div>
             <div class="col-1-of-2-uneven-2 arena">
                 <table class="arena__table"></table>
             </div>
+            <div class="col-1-of-2-uneven-1 column navbar toggle-mode__div game-controls">
+                <p class="toggle-mode">LEADERBOARD</p>
+            </div>
         </div>
+        <div class="alert-box leaderboard row hidden">
+            <div class="leaderboard__left col-1-of-2">
+                <img src="assets/trophy.png" alt="Trophy image">
+            </div>
+            <div class="leaderboard__right col-1-of-2">
+                &nbsp;
+            </div>
+        </div>
+        <div class="winner-alert alert-box hidden">
+            <p class="winner-alert__text">!!!   SUCCESSFULLY COMPLETED  !!!</p>
+            <p>Time: <span class="winner-alert__time"></span></p>
+            <p>Moves: <span class="winner-alert__moves"></span></p>
+            <p class="winner-alert__show-leaderboard">> LEADERBOARD <</p>
+        </div>
+    </div>
+    <div class="overlay hidden">
+        &nbsp;
     </div>
 
 

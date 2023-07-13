@@ -1,0 +1,51 @@
+.logo-box {
+    text-align: center;
+    font-size: 2rem;
+    text-decoration:underline;
+    font-weight: 600;
+    float: right;
+
+    p {
+        margin-right: 4rem;
+    }
+}
+
+.navbar {
+    position: fixed;
+    margin: 1rem;
+    font-size: large;
+}
+
+.pause,
+.toggle-mode {
+    cursor: pointer;
+    font-size: larger;
+    color: aquamarine;
+
+    &:hover {
+        background-color: bisque;
+        box-shadow: 0rem 0rem 4rem 3rem bisque;
+    }
+}
+
+.pause {
+    float: left;
+    transform: rotate(-90deg);
+}
+
+.toggle-mode {
+    float: right;
+    transform: rotate(90deg);
+
+    &__div{
+        right: 0;
+    }
+}
+
+.scorebox {
+    &__el {
+        margin: 1rem;
+        color:rgb(0, 0, 125);
+        letter-spacing: 1.1px;
+    }
+}

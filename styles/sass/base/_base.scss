@@ -9,7 +9,9 @@ html{
     scroll-behavior: smooth;
 }
 
-.wrapper{
-    padding: 2rem;
+
+.hidden {
+    visibility: hidden;
+    opacity: 0;
 }
 
