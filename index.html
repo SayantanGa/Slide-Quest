@@ -7,13 +7,13 @@
     <link rel="stylesheet" href="styles/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Orbitron:wght@400;500;600&family=Press+Start+2P&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="wrapper">
         <div class="row navbar">
             <div class="col-1-of-3-uneven-1 scorebox">
-                <p class="scorebox__el scorebox__time">Time: <br /><span id="time">00:20</span></p>
+                <p class="scorebox__el scorebox__time">Time: <br /><span id="time">00:00</span></p>
                 <p class="scorebox__el scorebox__moves">Moves: <span id="moves">0</span></p>
             </div>
             <div class="col-1-of-3-uneven-2"></div>
@@ -29,15 +29,33 @@
                 <table class="arena__table"></table>
             </div>
             <div class="col-1-of-2-uneven-1 column navbar toggle-mode__div game-controls">
-                <p class="toggle-mode">LEADERBOARD</p>
+                <p class="toggle-mode">NUMBERS</p>
             </div>
         </div>
         <div class="alert-box leaderboard row hidden">
             <div class="leaderboard__left col-1-of-2">
                 <img src="assets/trophy.png" alt="Trophy image">
             </div>
+            <div class="hr"></div>
             <div class="leaderboard__right col-1-of-2">
-                &nbsp;
+                <div class="leaderboard__rank1">
+                    <p>&#129351; <span class="leaderboard__rank1-name"></span> </p>
+                    <p>Time: <span class="leaderboard__rank1-time"></span> <br />Moves: <span class="leaderboard__rank1-moves"></span></p>
+                    <p><span class="leaderboard__rank1-size"></span><span class="leaderboard__rank1-cmode"></span></p>
+                    <p class="leaderboard__rank1-date"></p>
+                </div>
+                <div class="laderboard__rank2">
+                    <p>&#129352; <span class="leaderboard__rank2-name"></span> </p>
+                    <p>Time: <span class="leaderboard__rank2-time"></span> <br />Moves: <span class="leaderboard__rank2-moves"></span></p>
+                    <p><span class="leaderboard__rank2-size"></span><span class="leaderboard__rank2-cmode"></span></p>
+                    <p class="leaderboard__rank2-date"></p>
+                </div>
+                <div class="laderboard__rank3">
+                    <p>&#129353; <span class="leaderboard__rank3-name"></span> </p>
+                    <p>Time: <span class="leaderboard__rank3-time"></span> <br />Moves: <span class="leaderboard__rank3-moves"></span></p>
+                    <p><span class="leaderboard__rank3-size"></span><span class="leaderboard__rank3-cmode"></span></p>
+                    <p class="leaderboard__rank3-date"></p>
+                </div>
             </div>
         </div>
         <div class="winner-alert alert-box hidden">
@@ -46,9 +64,66 @@
             <p>Moves: <span class="winner-alert__moves"></span></p>
             <p class="winner-alert__show-leaderboard">> LEADERBOARD <</p>
         </div>
+        <div class="welcome alert-box">
+            <div class="welcome__theme">
+                <p class="welcome__theme-text">Choose your Theme: </p>
+                <div class="welcome__theme-gallery">
+                    <label for="theme1" class="theme1-label">MODERN</label>
+                    <label for="theme2" class="theme2-label">CLASSIC</label>
+                    <label for="theme3" class="theme3-label">MINIMALIST</label>
+                </div>
+            </div>
+            <div class="welcome__boardsize">
+                <label for="boardsize-row">Rows: </label>
+                <input type="number" id="boardsize-row" name="boardsize-Row" min="2" value="4">
+                <label for="boardsize-col">Columns: </label>
+                <input type="number" id="boardsize-col" name="boardsize-Col" min="2" value="4">
+            </div>
+            <div class="welcome__pics">
+                <p class="welcome__pics-text">Choose your Picture: </p>
+                <div class="welcome__pics-gallery">
+                    <label for="pic1"><img src="assets/img-1.jpg" alt="Pathway" class="pic1-label"></label>
+                    <label for="pic2"><img src="assets/img-2.jpg" alt="Apples" class="pic2-label"></label>
+                    <label for="pic3"><img src="assets/img-3.jpg" alt="Victory" class="pic3-label"></label>
+                    <label for="pic4"><img src="assets/img-4.jpg" alt="Chess" class="pic4-label"></label>
+                    <label for="pic5"><img src="assets/img-5-c.jpg" alt="Just numbers" class="pic5-label"></label>
+                </div>
+            </div>
+            <div class="welcome__select-mode">
+                <p class="welcome__select-mode-text">Want a Challenge?</p>
+                <ul>
+                    <li>
+                        <label for="challenge-subzero" class="welcome__select-mode-options challenge-subzero-label">SUBZERO</label>
+                    </li>
+                    <li>
+                        <label for="challenge-level2" class="welcome__select-mode-options challenge-level2-label">LEVEL-2</label>
+                    </li>
+                    <li>
+                        <label for="challenge-impossible" class="welcome__select-mode-options challenge-impossible-label">MISSION:IMPOSSIBLE</label>
+                    </li>
+                </ul>
+            </div>
+            <div class="welcome__proceed">
+                <p class="welcome__proceed-howto">HOW TO PLAY</p>
+                <p class="welcome__proceed-start">>> START <<</p> 
+            </div>
+        </div>
     </div>
-    <div class="overlay hidden">
+    <div class="overlay">
         &nbsp;
+    </div>
+    <div class="input-tags">
+        <input type="radio" id="theme1" name="theme" class="checkable-text" checked>
+        <input type="radio" id="theme2" name="theme" class="checkable-text">
+        <input type="radio" id="theme3" name="theme" class="checkable-text">
+        <input type="radio" id="pic1" name="playpic" class="checkable-pic">
+        <input type="radio" id="pic2" name="playpic" class="checkable-pic" checked>
+        <input type="radio" id="pic3" name="playpic" class="checkable-pic">
+        <input type="radio" id="pic4" name="playpic" class="checkable-pic">
+        <input type="radio" id="pic5" name="playpic" class="checkable-pic">
+        <input type="checkbox" name="challenge" id="challenge-subzero" class="challenge-option checkable-text" value="SUBZERO">
+        <input type="checkbox" name="challenge" id="challenge-level2" class="challenge-option checkable-text" value="LEVEL2">
+        <input type="checkbox" name="challenge" id="challenge-impossible" class="challenge-option checkable-text" value="MISSION:IMPOSSIBLE">
     </div>
 
 

@@ -31,6 +31,16 @@
             height: 70%;
         }
     }
+
+    &__right {
+        flex-direction: column;
+        align-items: left;
+        justify-content:space-around;
+        font-size: larger;
+        text-align: left;
+        font-weight: 500;
+        color: bisque;
+    }
 }
 
 .winner-alert {

@@ -17,9 +17,9 @@ count(){
       this.sec++
       this.msec = 0
     }
-    if (this.sec === 60) {
-      this.mins++
-      this.sec = 0
+    if (this.sec >= 60) {
+      this.mins += Math.floor(this.sec/60)
+      this.sec = this.sec % 60
     }
     this.time = `${('0'+this.mins).slice(-2)} : ${('0'+this.sec).slice(-2)} . ${this.msec}`
     document.querySelector('#time').textContent = this.time
@@ -30,9 +30,12 @@ count(){
 
 class userScore {
   constructor(timeInMsec, time, moves) {
+    this.username = navigator.userAgentData.platform
     this.timeInMsec = timeInMsec
     this.time = time
     this.moves = moves
+    this.size = `${numRow}*${numCol}`
+    this.challenge = (challenge != []) ? '[> CHALLENGE <]' : ''
     let current = new Date();
     let cDate = current.getFullYear() + '-' + (current.getMonth() + 1) + '-' + current.getDate();
     let cTime = current.getHours() + ":" + current.getMinutes() + ":" + current.getSeconds();
@@ -47,7 +50,7 @@ function incrementMoves(){
   document.querySelector('#moves').textContent = moves
 }
 
-function shuffleArray(array) {
+function shuffleArray(array, solvable = true) {
   const getInversions = (arr) => {
     let inversions = 0
     for (let i = 0; i < arr.length - 1; i++) {
@@ -70,11 +73,13 @@ function shuffleArray(array) {
           (emptyTileRowFromBelow % 2 === 1 && inversions % 2 === 0)))
     )
   }
+  
   let arrayCopy = array.slice()
   do {
     arrayCopy.sort(() => Math.random() - 0.5)
   } while (solvable && !isSolvable(arrayCopy))
 
+  solvability = isSolvable(arrayCopy)
   return arrayCopy
 }
 
@@ -95,7 +100,7 @@ function setArena() {
       if (dataArray[i * numCol + j] === 0){
         outputString += `<td class="blank" data-row = ${i} data-col = ${j} data-value = 0 ></td>`
       } else {
-        outputString += `<td class="tile" data-row = ${i} data-col = ${j} data-value = ${dataArray[i * numCol + j]} >` + dataArray[i * numCol + j] + '</td>'
+        outputString += `<td class="tile" data-row = ${i} data-col = ${j} data-value = ${dataArray[i * numCol + j]} ><span class="tile__number hidden">` + dataArray[i * numCol + j] + '</span></td>'
       }
     }
     outputString += '</tr>\n'
@@ -184,13 +189,13 @@ function isWinnerMove() {
 
 function displayWin() {
   document.querySelector('.winner-alert').classList.remove('hidden')
+  document.querySelector('.overlay').classList.remove('hidden')
   document.querySelector('.winner-alert__time').textContent = `${('0'+playerTime.mins).slice(-2)} : ${('0'+playerTime.sec).slice(-2)} . ${('0'+playerTime.msec).slice(-2)}`
   document.querySelector('.winner-alert__moves').textContent = moves
   playerTime.run = false
-  document.querySelector('.winner-alert__show-leaderboard').addEventListener('click', () => {
-    document.querySelector('.winner-alert').classList.add('hidden')
-    document.querySelector('.leaderboard').classList.remove('hidden')
-  })
+  rankCurr = new userScore(playerTime.totMsec, playerTime.time, moves)
+  window.localStorage.setItem(`lbd-${window.localStorage.length}`, JSON.stringify(rankCurr))
+  document.querySelector('.winner-alert__show-leaderboard').addEventListener('click', displayLeaderboard)
 }
 
 function keyPressHandler(e) {
@@ -218,33 +223,212 @@ function pauseOrResumeGame(timer) {
   }
 }
 
+function toggleNumbers () {
+  document.querySelectorAll('.tile__number').forEach(numEl => {
+    if (numEl.classList.contains('hidden')) {
+      numEl.classList.remove('hidden')
+    } else {
+      numEl.classList.add('hidden')
+    }
+  })
+}
+
 function constructLeaderboard() {
+  let userList = []
+  for (let i = 0; i < window.localStorage.length; i++) {
+    if (window.localStorage.getItem(`lbd-${i}`)) {
+      userList.push(JSON.parse(window.localStorage.getItem(`lbd-${i}`)))
+    }
+  }
+  userList.sort((a, b) => (a.timeInMsec > b.timeInMsec) ? 1 :((a.timeInMsec < b.timeInMsec) ? -1 : ((a.moves > b.moves) ? 1 : ((a.moves < b.moves) ? -1 : 0 ))))
+  return userList
+}
+
+function displayLeaderboard() {
+  let Leaderboard = constructLeaderboard()
+  document.querySelector('.leaderboard').classList.remove('hidden')
+  document.querySelector('.winner-alert').classList.add('hidden')
+  for (let i = 0; i < Math.min(3, Leaderboard.length); i++) {
+    document.querySelector(`.leaderboard__rank${i+1}-name`).textContent = Leaderboard[i].username
+    document.querySelector(`.leaderboard__rank${i+1}-time`).textContent = Leaderboard[i].time
+    document.querySelector(`.leaderboard__rank${i+1}-moves`).textContent = Leaderboard[i].moves
+    document.querySelector(`.leaderboard__rank${i+1}-date`).textContent = Leaderboard[i].date
+    document.querySelector(`.leaderboard__rank${i+1}-size`).textContent = Leaderboard[i].size
+    document.querySelector(`.leaderboard__rank${i+1}-cmode`).textContent = Leaderboard[i].challenge
+  }
+}
+
+function loadImgToArena() {
+  let x = 2
+  let clickablePics = document.querySelectorAll('.checkable-pic')
+  for (let i = 1; i <= clickablePics.length; i++) {
+    if (clickablePics[i-1].checked) {
+      x = i
+      break
+    }
+  }
+  x === 5 ? document.querySelectorAll('.tile__number').forEach(numEl => numEl.classList.remove('hidden')) : 0
+  const tileArray = Array.from(document.querySelectorAll('.tile'))
+  tileArray.forEach((tile) => {
+    const tileRow = Math.floor((1*tile.dataset.value - 1)/ numCol)
+    const tileCol = (1*tile.dataset.value -1) % numCol
+    tile.style.backgroundImage = imgUrl(x)
+    tile.style.backgroundPosition = `${tileCol * 100/(numCol-1)}% ${tileRow * 100/(numRow-1)}%`
+  })
+}
+
+function startGame() {
+  numRow = document.getElementById('boardsize-row').value
+  numCol = document.getElementById('boardsize-col').value
+
+  solArray = Array.from({length: numRow * numCol - 1}, (_, k) => k + 1);  solArray.push(0)
+  dataArray = shuffleArray(solArray, !challenge.includes(3))
+
+  setArena()
+
+  document.querySelectorAll('.tile').forEach(tile => tile.style.transform = 'translateX(0%) translateY(0%)')
+  document.querySelectorAll('.blank').forEach(tile => tile.style.transform = 'translateX(0%) translateY(0%)')
+
+  loadImgToArena()
+
+  tiles = document.querySelectorAll('.tile')
+  blankTile = document.querySelector('.blank')
+
+  document.querySelector('.welcome').classList.add('hidden')
+  document.querySelector('.overlay').classList.add('hidden')
+
+  document.querySelectorAll('.challenge-option').forEach((el, i) => {
+    el.checked ? challenge.push(i+1) : 0
+  })
+  executeChallenges()
+}
+
+function freezeRandomTiles() {
+  const tiles = Array.from(document.querySelectorAll('.tile'))
+  const frozenTiles = []
+
+  // Generate random indices
+  while (frozenTiles.length < Math.floor(numRow*numCol/5)) {
+    const randomIndex = Math.floor(Math.random() * tiles.length)
+    if (!frozenTiles.includes(randomIndex)) {
+      frozenTiles.push(randomIndex)
+    }
+  }
+
+  // Apply freeze style to the selected tiles
+  frozenTiles.forEach(index => {
+    tiles[index].classList.add('frozen')
+  })
+
+  // Remove freeze after 10 seconds
+  setTimeout(() => {
+    frozenTiles.forEach(index => {
+      tiles[index].classList.remove('frozen')
+    })
+  }, 10000)
+
+  const observer = new MutationObserver(mutations => {
+    mutations.forEach(mutation => {
+      // Check if the mutation is for the dataset.row or dataset.col attribute
+      if (
+        mutation.attributeName === 'data-row' ||
+        mutation.attributeName === 'data-col'
+      ) {
+        imposePenalty(10, 2);
+      }
+    });
+  });
+  
+  // Start observing the tiles for attribute changes
+  tiles.forEach(tile => {
+    observer.observe(tile, { attributes: true });
+  });
+}
+
+function imposePenalty(timeInSec, move) {
+  playerTime.totMsec += timeInSec * 100
+  playerTime.sec += timeInSec
+  moves += move
+}
+
+function challengeLevel2() {
+  if (challenge.includes(2)) {
+    //Setting min board size to 5*5
+    document.getElementById('boardsize-row').min = 5
+    document.getElementById('boardsize-row').value = 5
+    document.getElementById('boardsize-col').min = 5
+    document.getElementById('boardsize-col').value = 5
+    //Changing images
+    for (let i = 1; i < 5; i++) {
+      document.querySelector(`.pic${i}-label`).src = `assets/img-${i + 5}.jpg`
+    }
+  } else {
+    //Setting min board size to 5*5
+    document.getElementById('boardsize-row').min = 2
+    document.getElementById('boardsize-row').value = 4
+    document.getElementById('boardsize-col').min = 2
+    document.getElementById('boardsize-col').value = 4
+    //Changing images
+    for (let i = 1; i < 5; i++) {
+      document.querySelector(`.pic${i}-label`).src = `assets/img-${i}.jpg`
+    }
+  }
 
 }
 
-/********************Variable Declarations*********************/
+function executeChallenges() {
+  if (challenge.includes(1)) {
+    setInterval(freezeRandomTiles, 15000)
+  }
+}
 
-const solvable = true
-const numRow = 4 //DEBUG
-const numCol = 4 //DEBUG
-var moves = 0
-var playerTime
-const solArray = Array.from({length: numRow * numCol - 1}, (_, k) => k + 1);  solArray.push(0)
-const dataArray = shuffleArray(solArray)
+
+
+/********************Global Variable Declarations*********************/
+
+let solvability
+const challenge = []  //1 for subzero, 2 for level-2, 3 for mission:impossible
+let numRow = 4
+let numCol = 4
+let moves = 0
+let playerTime
+let rankCurr
+let solArray
+let dataArray
+let tiles
+let blankTile
+const imgUrl = (x) => challenge.includes(2) ? `url('assets/img-${x + 5}.jpg')` : `url('assets/img-${x}.jpg')`
 
 const arenaTable = document.querySelector('.arena__table')
 
 
-
 /********************************Main Code****************************  */
-  
-setArena()
-document.querySelectorAll('.tile').forEach(tile => tile.style.transform = 'translateX(0%) translateY(0%)')
-document.querySelectorAll('.blank').forEach(tile => tile.style.transform = 'translateX(0%) translateY(0%)')
+document.querySelector('.welcome__proceed-start').addEventListener('click', startGame)
 
-const blankTile = document.querySelector('.blank')
-const tiles = document.querySelectorAll('.tile')
+document.querySelector('.challenge-level2-label').addEventListener('click', () => {
+  if (challenge.includes(2)) {
+    challenge.pop(2)
+    challengeLevel2()
+  } else {
+    challenge.push(2)
+    challengeLevel2()
+  }
+})
 
-arenaTable.addEventListener('click', (e) => playTiles(e.target.dataset))
+//////////////////////////  AT START  ////////////////////////////
+document.querySelector('.welcome').querySelectorAll('label').forEach(()=>{addEventListener('click', () => {
+  document.querySelectorAll('.checkable-text').forEach(el => {
+    el.checked ? document.querySelector('.' + el.id + '-label').style.color = 'gold' : document.querySelector('.' + el.id + '-label').style.color = 'aquamarine'
+  })
+  document.querySelectorAll('.checkable-pic').forEach(el => {
+    el.checked ? document.querySelector('.' + el.id + '-label').style.outline = 'solid 1px gold' : document.querySelector('.' + el.id + '-label').style.outline = 'none'
+  })
+})})
+////////////////////////////////////////////////////////////////////
+
+arenaTable.addEventListener('click', (e) => playTiles(e.target.closest('.tile').dataset))
 document.addEventListener('keydown', (e) => keyPressHandler(e))
 document.querySelector('.pause').addEventListener('click', () => pauseOrResumeGame(playerTime))
+document.querySelector('.toggle-mode').addEventListener('click', toggleNumbers)
+
+//////////////////////////  SET IMG    /////////////////////////////

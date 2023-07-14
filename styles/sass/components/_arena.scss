@@ -2,27 +2,33 @@
 
     &__img,
     &__table{
+        box-sizing: content-box;
         table-layout: fixed;
         height: 35rem;
         width: 35rem;
         margin: 12vh auto;
-        padding: 1rem;
+        //padding: 1rem;
         border: .4rem solid black;
-        text-align: center;
+        text-align:center;
         border-spacing: 0;
+
+        background-size: cover;
     }
 }
 
 .tile{
-    border: 1px solid bisque;
+    //border: 1px solid bisque;
     transition: all .3s linear;
     cursor: pointer;
     font-weight: 600;
     font-size: 2rem;
-}
+    background-repeat: no-repeat;
 
-.blank{
-    
+    span {
+        mix-blend-mode:lighten;
+        color: aliceblue;
+        transition: all .3s ease;
+    }
 }
 
 .zoom-animation{
