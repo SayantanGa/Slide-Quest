@@ -6,13 +6,18 @@
         table-layout: fixed;
         height: 35rem;
         width: 35rem;
-        margin: 12vh auto;
+        //@include align-center;
+        margin: 12em auto;
         //padding: 1rem;
         border: .4rem solid black;
         text-align:center;
         border-spacing: 0;
 
         background-size: cover;
+
+        @include mQ(phone) {
+            margin: 25em auto;
+        }
     }
 }
 
@@ -23,6 +28,7 @@
     font-weight: 600;
     font-size: 2rem;
     background-repeat: no-repeat;
+    background-size: 35rem 35rem;
 
     span {
         mix-blend-mode:lighten;

@@ -8,6 +8,11 @@
     height: 75vh;
     width: 75vw;
     border-radius: 3rem;
+
+    @include mQ(tab-p) {
+        height: 85vh;
+        width: 95vw;
+    }
 }
 
 .overlay {
@@ -28,7 +33,7 @@
         justify-content: center;
 
         img {
-            height: 70%;
+            height: 25rem;
         }
     }
 
@@ -37,9 +42,21 @@
         align-items: left;
         justify-content:space-around;
         font-size: larger;
-        text-align: left;
+        text-align: center;
         font-weight: 500;
         color: bisque;
+        margin-left: .8rem;
+
+        @include mQ(tab-p) {
+            flex-direction: row;
+        }
+        @include mQ(phone) {
+            flex-direction: column;
+        }
+    }
+
+    @include mQ(tab-p) {
+        flex-direction: column;
     }
 }
 

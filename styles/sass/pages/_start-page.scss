@@ -31,10 +31,21 @@
             margin-bottom: .5rem;
         }
         &-gallery {
-        display: flex;
-        justify-content: space-evenly;
+            display: flex;
+            justify-content: space-evenly;
+
             .theme1-label {
                 color: gold;
+            }
+
+            @include mQ (phone) {
+                flex-direction: column;
+            }
+        }
+        &-label {
+
+            @include mQ (phone) {
+                margin: .5rem;
             }
         }
     }
@@ -77,6 +88,11 @@
                 display: inline;
                 list-style: none;
     
+            }
+
+            @include mQ (phone) {
+                flex-direction: column;
+                margin: .5rem;
             }
         }
     }

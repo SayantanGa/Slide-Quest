@@ -31,6 +31,17 @@
 .pause {
     float: left;
     transform: rotate(-90deg);
+
+    @include mQ (tab-p) {
+        transform: rotate(0deg);
+        position: fixed;
+        bottom: 10vh;
+        left: 20vw;
+
+        @include mQ(phone) {
+            left: 10vw;
+        }
+    }
 }
 
 .toggle-mode {
@@ -40,6 +51,16 @@
     &__div{
         right: 0;
     }
+
+    @include mQ (tab-p) {
+        transform: rotate(0deg);
+        position: fixed;
+        bottom: 10vh;
+        right: 20vw;
+        @include mQ(phone) {
+            right: 10vw;
+        }
+    }
 }
 
 .scorebox {
@@ -47,5 +68,12 @@
         margin: 1rem;
         color:rgb(0, 0, 125);
         letter-spacing: 1.1px;
+    }
+
+    &__moves {
+        @include mQ (tab-p) {
+            position: fixed;
+            bottom : 0;
+        }
     }
 }

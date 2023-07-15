@@ -2,3 +2,18 @@
     outline: dotted 3px rgb(216, 239, 247);
     outline-offset: -4px;
 }
+
+.surrender {
+    font-size: large;
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    padding: 1rem;
+    letter-spacing: 1.1px;
+    transition: all .2s;
+
+    &:hover {
+        cursor: pointer;
+        transform: scale(1.2) translateY(-2px);
+    }
+}

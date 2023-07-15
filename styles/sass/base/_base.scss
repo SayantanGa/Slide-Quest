@@ -7,6 +7,19 @@
 html{
     font-size: 100%;
     scroll-behavior: smooth;
+
+    @include mQ(tab-l) {
+        font-size: 85%;
+    }
+    @include mQ (tab-p) {
+        font-size: 70%;
+    }
+    @include mQ (phone) {
+        font-size: 50%;
+    }
+    @include mQ (big-d) {
+        font-size: 150%;
+    }
 }
 
 

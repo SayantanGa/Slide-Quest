@@ -35,7 +35,7 @@ class userScore {
     this.time = time
     this.moves = moves
     this.size = `${numRow}*${numCol}`
-    this.challenge = (challenge != []) ? '[> CHALLENGE <]' : ''
+    this.challenge = (challenge != []) ? '<= CHALLENGE =>' : ''
     let current = new Date();
     let cDate = current.getFullYear() + '-' + (current.getMonth() + 1) + '-' + current.getDate();
     let cTime = current.getHours() + ":" + current.getMinutes() + ":" + current.getSeconds();
@@ -281,6 +281,10 @@ function startGame() {
   numRow = document.getElementById('boardsize-row').value
   numCol = document.getElementById('boardsize-col').value
 
+  document.querySelectorAll('.challenge-option').forEach((el, i) => {
+    el.checked ? challenge.push(i+1) : 0
+  })
+
   solArray = Array.from({length: numRow * numCol - 1}, (_, k) => k + 1);  solArray.push(0)
   dataArray = shuffleArray(solArray, !challenge.includes(3))
 
@@ -297,9 +301,6 @@ function startGame() {
   document.querySelector('.welcome').classList.add('hidden')
   document.querySelector('.overlay').classList.add('hidden')
 
-  document.querySelectorAll('.challenge-option').forEach((el, i) => {
-    el.checked ? challenge.push(i+1) : 0
-  })
   executeChallenges()
 }
 
@@ -376,9 +377,25 @@ function challengeLevel2() {
 
 }
 
+function challengeImpossible() {
+  document.querySelector('.surrender').classList.remove('hidden')
+  document.querySelector('.surrender').addEventListener('click', () => {
+    if (solvability) {
+      if(!alert('Puzzle was solvable! :-(')) {
+        window.location.reload()
+      }
+    } else {
+      displayWin()
+    }
+  })
+}
+
 function executeChallenges() {
   if (challenge.includes(1)) {
     setInterval(freezeRandomTiles, 15000)
+  }
+  if (challenge.includes(3)) {
+    challengeImpossible()
   }
 }
 
