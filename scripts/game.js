@@ -99,6 +99,7 @@ function markCheckedOptions() {
 function setGamePage () {
   arenaTable.addEventListener('click', (e) => playTiles(e.target.closest('.tile').dataset))
   document.addEventListener('keydown', (e) => keyPressHandler(e))
+  swipeHandler()
   document.querySelector('.pause').addEventListener('click', () => pauseOrResumeGame(playerTime))
   document.querySelector('.toggle-mode').addEventListener('click', toggleNumbers)
 }
@@ -202,6 +203,7 @@ function setArena() {
   arenaTable.innerHTML = outputString
   playerTime = new timer()
   playerTime.count()
+  arenaTable.addEventListener('touchmove', e => e.preventDefault())
 }
 
 /**
@@ -255,7 +257,7 @@ function tileAtPos(x, y) {
 /**
  * Play tiles based on the clicked tile position.
  * 
- * @param {object} clickedTilePos - The position of the clicked tile.
+ * @param {Element.dataset} clickedTilePos - The position of the clicked tile.
  */
 function playTiles(clickedTilePos) {
   // Check if clickedTilePos is undefined or null
@@ -346,6 +348,49 @@ function keyPressHandler(e) {
   } else if (['ArrowRight','D', 'd'].includes(e.key)) {
     playTiles(tileAtPos(1 * blankTile.dataset.row, 1 * blankTile.dataset.col + 1).dataset)
   }
+}
+
+/**
+ * Handles the swipe event on the arenaTable.
+ *
+ * @param {type} e - the swipe event object
+ * @return {type} Does not return a value
+ */
+function swipeHandler() {
+  let startX, startY, touchedTilePos;
+
+  arenaTable.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    touchedTilePos = e.target.dataset;
+  }); 
+
+  arenaTable.addEventListener('touchend', (e) => {
+    const endX = e.changedTouches[0].clientX;
+    const endY = e.changedTouches[0].clientY;
+    const deltaX = endX - startX;
+    const deltaY = endY - startY;
+
+    const isHorizontalSwipe = Math.abs(deltaX) > Math.abs(deltaY);
+    const isVerticalSwipe = Math.abs(deltaY) > Math.abs(deltaX);
+
+    const isSameRow = touchedTilePos.row === blankTile.dataset.row;
+    const isSameCol = touchedTilePos.col === blankTile.dataset.col;
+
+    if (isHorizontalSwipe && isSameRow) {
+      if (deltaX > 0 && touchedTilePos.col < blankTile.dataset.col) {
+        playTiles(touchedTilePos);
+      } else if (deltaX < 0 && touchedTilePos.col > blankTile.dataset.col) {
+        playTiles(touchedTilePos);
+      }
+    } else if (isVerticalSwipe && isSameCol) {
+      if (deltaY > 0 && touchedTilePos.row < blankTile.dataset.row) {
+        playTiles(touchedTilePos);
+      } else if (deltaY < 0 && touchedTilePos.row > blankTile.dataset.row) {
+        playTiles(touchedTilePos);
+      }
+    }
+  });
 }
 
 /**
@@ -462,12 +507,16 @@ function loadImgToArena() {
     tile.style.backgroundImage = imgUrl(x)
     tile.style.backgroundPosition = `${tileCol * 100/(numCol-1)}% ${tileRow * 100/(numRow-1)}%`
   })
+  //Load user uploaded image, if any
+  loadUserImg()
 }
 
 /**
  * Starts the game by setting up the board, initializing variables, and executing challenge functions.
  */
 function startGame() {
+  setGamePage()
+  
   numRow = document.getElementById('boardsize-row').value
   numCol = document.getElementById('boardsize-col').value
 
@@ -671,4 +720,3 @@ function loadUserImg() {
 loadUserImg()
 setWelcomePage()
 markCheckedOptions()
-setGamePage()

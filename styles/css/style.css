@@ -23,6 +23,9 @@ html {
   visibility: hidden;
   opacity: 0; }
 
+header {
+  display: none; }
+
 ::selection {
   color: greenyellow;
   background: none; }
