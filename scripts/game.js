@@ -17,6 +17,8 @@ let observer  //for tracking freezed tile moves in subzero challenge
 const imgUrl = (x) => (challenge.includes(2) ? (x !== 5 ?  `url('assets/img-${x + 5}.jpg')` : `url('${uploadedImgSrc}')`) : `url('assets/img-${x}.jpg')`)
 
 const arenaTable = document.querySelector('.arena__table')
+const welcomePage = document.querySelector('.welcome')
+const overlay = document.querySelector('.overlay')
 
 /********************* Class Definitions ****************************   */
 
@@ -70,17 +72,30 @@ class userScore {
 
 /************************Function Definitions**********************/
 
+/**
+ * Marks the checked options in the DOM by modifying their styles.
+ * Texts: Gold(selected), Aquamarine(unselected)
+ * Pics outline: Gold(selected), None(unselected)
+ */
 function markCheckedOptions() {
-  document.querySelector('.welcome').querySelectorAll('label').forEach(()=>{addEventListener('click', () => {
-    document.querySelectorAll('.checkable-text').forEach(el => {
-      el.checked ? document.querySelector('.' + el.id + '-label').style.color = 'gold' : document.querySelector('.' + el.id + '-label').style.color = 'aquamarine'
+  welcomePage.querySelectorAll('label').forEach(()=>{
+    addEventListener('click', () => {
+      document.querySelectorAll('.checkable-text').forEach(el => {
+        el.checked ? document.querySelector('.' + el.id + '-label').style.color = 'gold' : document.querySelector('.' + el.id + '-label').style.color = 'aquamarine'
     })
     document.querySelectorAll('.checkable-pic').forEach(el => {
-      el.checked ? document.querySelector('.' + el.id + '-label').style.outline = 'solid 1px gold' : document.querySelector('.' + el.id + '-label').style.outline = 'none'
+        el.checked ? document.querySelector('.' + el.id + '-label').style.outline = 'solid 1px gold' : document.querySelector('.' + el.id + '-label').style.outline = 'none'
     })
   })})
 }
 
+/**
+ * Sets up the game page by adding event listeners to various elements.
+ *
+ * @param {object} e - The event object.
+ * @param {string} e.target.closest('.tile').dataset - The dataset of the closest tile element.
+ * @return {undefined} This function does not return a value.
+ */
 function setGamePage () {
   arenaTable.addEventListener('click', (e) => playTiles(e.target.closest('.tile').dataset))
   document.addEventListener('keydown', (e) => keyPressHandler(e))
@@ -88,27 +103,45 @@ function setGamePage () {
   document.querySelector('.toggle-mode').addEventListener('click', toggleNumbers)
 }
 
+/**
+ * Sets up the welcome page functionality.
+ */
 function setWelcomePage () {
-  document.querySelector('.welcome__proceed-start').addEventListener('click', startGame)
+  const howToPlayPage = document.querySelector('.how-to-play')
+  document.querySelector('.welcome__proceed-start').addEventListener('click', startGame)  //Starts game on click
   document.querySelector('.welcome__proceed-howto').addEventListener('click', () => {
-    document.querySelector('.welcome').classList.add('hidden')
-    document.querySelector('.how-to-play').classList.remove('hidden')
+    //Hides the welcome page and opens up the how-to-play page
+    hideElement(welcomePage)
+    hideElement(howToPlayPage, false)
   })
   document.querySelector('.back-to-welcome').addEventListener('click', () => {
-    document.querySelector('.welcome').classList.remove('hidden')
-    document.querySelector('.how-to-play').classList.add('hidden')
+    //Back to welcome page
+    hideElement(welcomePage, false)
+    hideElement(howToPlayPage)
   })
   document.querySelector('.challenge-level2-label').addEventListener('click', () => {
-    if (challenge.includes(2)) {
-      challenge.pop(2)
-      challengeLevel2()
-    } else {
-      challenge.push(2)
-      challengeLevel2()
-    }
+    challenge.includes(2) ? challenge.pop(2) : challenge.push(2)  //Toggles challenge mode 2 in challenge array
+    challengeLevel2()
   })
 }
 
+/**
+ * Hides or unhides an element by adding or removing the 'hidden' class.
+ *
+ * @param {HTMLElement} el - The element to hide or unhide.
+ * @param {boolean} [hidden=true] - Optional. If true, the element will be hidden. If false, the element will be unhidden.
+ */
+function hideElement(el, hidden = true) {
+  hidden ? el.classList.add('hidden') : el.classList.remove('hidden')
+}
+
+/**
+ * Shuffles an array randomly and checks if it is solvable.
+ *
+ * @param {Array} array - The array to be shuffled.
+ * @param {boolean} solvable - (optional) Flag indicating whether the shuffled array should be solvable. Defaults to true.
+ * @return {Array} The shuffled array.
+ */
 function shuffleArray(array, solvable = true) {
   const getInversions = (arr) => {
     let inversions = 0
@@ -121,6 +154,7 @@ function shuffleArray(array, solvable = true) {
     }
     return inversions
   }
+  //Checks if the array is solvable
   const isSolvable = (arr) => {
     const inversions = getInversions(arr)
     const emptyTileRowFromBelow =
@@ -136,12 +170,22 @@ function shuffleArray(array, solvable = true) {
   let arrayCopy = array.slice()
   do {
     arrayCopy.sort(() => Math.random() - 0.5)
-  } while (solvable && !isSolvable(arrayCopy))
+  } while (solvable && !isSolvable(arrayCopy))  //Randomises until the array is solvable, if solvable is true
 
   solvability = isSolvable(arrayCopy)
   return arrayCopy
 }
 
+/**
+ * Generates an HTML Table representation of the arena table and updates the HTML.
+ *
+ * @param {number} numRow - the number of rows in the arena table
+ * @param {number} numCol - the number of columns in the arena table
+ * @param {Array} dataArray - an array containing the values for each cell in the arena table
+ * @param {HTMLElement} arenaTable - the HTML element representing the arena table
+ * @param {timer} playerTime - an instance of the timer class
+ * @return {void}
+ */
 function setArena() {
   let outputString = ''
   for(let i = 0; i < numRow; i++){
@@ -160,30 +204,30 @@ function setArena() {
   playerTime.count()
 }
 
-function moveVertical (tile, step, animate = true) {
-  tile.dataset.row = Number(tile.dataset.row) - step
+/**
+ * Moves a tile on the specified axis by the given step.
+ *
+ * @param {Element} tile - The tile to be moved.
+ * @param {number} step - The distance to move the tile by.
+ * @param {string} axis - The axis on which to move the tile ('x' or 'y').
+ * @param {boolean} [animate=true] - Whether to animate the tile movement (default is true).
+ */
+function moveTile(tile, step, axis, animate = true) {
+  axis === 'x' ? tile.dataset.col = Number(tile.dataset.col) - step : tile.dataset.row = Number(tile.dataset.row) - step
   let [x, y] = getTranslateXY(tile.style.transform)
-  if (animate) {
-    tile.classList.add('zoom-animation')
-  }
-  tile.style.transform = `translateX(${x}%) translateY(${y-100*step}%)`
+  animate ? tile.classList.add('zoom-animation') : null
+  tile.style.transform = (axis === 'x') ? `translateX(${x - 100*step}%) translateY(${y}%)` : tile.style.transform = `translateX(${x}%) translateY(${y-100*step}%)`
   setTimeout(() => {
     tile.classList.remove('zoom-animation')
-  }, 250);
+  }, 225);
 }
 
-function moveHorizontal (tile, step, animate = true) {
-  tile.dataset.col = Number(tile.dataset.col) - step
-  let [x, y] = getTranslateXY(tile.style.transform)
-  if (animate) {
-    tile.classList.add('zoom-animation')
-  }
-  tile.style.transform = `translateX(${x - 100*step}%) translateY(${y}%)`
-  setTimeout(() => {
-    tile.classList.remove('zoom-animation')
-  }, 200);
-}  
-
+/**
+ * Extracts the X and Y values from a string representing a CSS transform in the format "translateX(x%) translateY(y%)".
+ *
+ * @param {string} s - The string representing the CSS transform.
+ * @return {Array<number>} An array containing the X and Y values extracted from the string.
+ */
 function getTranslateXY(s) {
   const regex = /translateX\(([-\d.]+)%\) translateY\(([-\d.]+)%\)/
   const matches = s.match(regex)
@@ -194,6 +238,13 @@ function getTranslateXY(s) {
   }
 }
 
+/**
+ * Retrieves the tile at the specified position.
+ *
+ * @param {number} x - The x-coordinate of the tile.
+ * @param {number} y - The y-coordinate of the tile.
+ * @return {Element} The tile element at the given position.
+ */
 function tileAtPos(x, y) {
   if (!(x >= 0 && x < numRow && y >= 0 && y < numCol)) {
     return
@@ -201,30 +252,54 @@ function tileAtPos(x, y) {
   return document.querySelector(`[data-row="${x}"][data-col="${y}"]`)
 }
 
+/**
+ * Play tiles based on the clicked tile position.
+ * 
+ * @param {object} clickedTilePos - The position of the clicked tile.
+ */
 function playTiles(clickedTilePos) {
+  // Check if clickedTilePos is undefined or null
   if (!clickedTilePos) {
-    return
+    return;
   }
-  let targetMove = Array(1 * clickedTilePos.row - 1 * blankTile.dataset.row, 1 * clickedTilePos.col - 1 * blankTile.dataset.col)
+
+  // Calculate the target move based on the clicked tile position and the blank tile position
+  let targetMove = [
+    1 * clickedTilePos.row - 1 * blankTile.dataset.row,
+    1 * clickedTilePos.col - 1 * blankTile.dataset.col
+  ];
+
+  // Check if both targetMove elements are either truthy or falsy
   if (!targetMove[0] == !targetMove[1]) {
-    return
+    return;
   } else if (targetMove[0]) {
+    // Move the tiles vertically
     for (let i = Math.sign(targetMove[0]); Math.abs(i) <= Math.abs(targetMove[0]); i += Math.sign(targetMove[0])) {
-      moveVertical(tileAtPos(1 * blankTile.dataset.row + i, 1 * blankTile.dataset.col), Math.sign(targetMove[0])) 
+      moveTile(tileAtPos(1 * blankTile.dataset.row + i, 1 * blankTile.dataset.col), Math.sign(targetMove[0]), 'y');
     }
-    moveVertical(blankTile, -targetMove[0], false);
+    moveTile(blankTile, -targetMove[0], 'y', false);
   } else if (targetMove[1]) {
+    // Move the tiles horizontally
     for (let i = Math.sign(targetMove[1]); Math.abs(i) <= Math.abs(targetMove[1]); i += Math.sign(targetMove[1])) {
-      moveHorizontal(tileAtPos(1 * blankTile.dataset.row, 1 * blankTile.dataset.col + i), Math.sign(targetMove[1]))
+      moveTile(tileAtPos(1 * blankTile.dataset.row, 1 * blankTile.dataset.col + i), Math.sign(targetMove[1]), 'x');
     }
-    moveHorizontal(blankTile, -targetMove[1], false)
+    moveTile(blankTile, -targetMove[1], 'x', false);
   }
-  moves++
+
+  // Increment the moves counter
+  moves++;
+
+  // Check if the move is a winning move
   if (isWinnerMove()) {
-    displayWin()
+    displayWin();
   }
 }
 
+/**
+ * Check if the current move is a winning move by comparing the current array state with that of solution array.
+ *
+ * @return {boolean} True if the current move is a winning move, otherwise false.
+ */
 function isWinnerMove() {
   for (let i = 0; i < numRow; i++) {
     for (let j = 0; j < numCol; j++) {
@@ -236,21 +311,30 @@ function isWinnerMove() {
   return true
 }
 
+/**
+ * Displays the win alert and updates the leaderboard.
+ */
 function displayWin() {
-  document.querySelector('.winner-alert').classList.remove('hidden')
-  document.querySelector('.overlay').classList.remove('hidden')
+  hideElement(document.querySelector('.winner-alert'), false)
+  hideElement(overlay, false)
   document.querySelector('.winner-alert__time').textContent = `${('0'+playerTime.mins).slice(-2)} : ${('0'+playerTime.sec).slice(-2)} . ${('0'+playerTime.msec).slice(-2)}`
   document.querySelector('.winner-alert__moves').textContent = moves
   playerTime.run = false
   rankCurr = new userScore(playerTime.totMsec, playerTime.time, moves)
-  window.localStorage.setItem(`lbd-${window.localStorage.length}`, JSON.stringify(rankCurr))
+  window.localStorage.setItem(`lbd-${window.localStorage.length}`, JSON.stringify(rankCurr))  //Storing scores under the code index lbd-i
   document.querySelector('.winner-alert__show-leaderboard').addEventListener('click', displayLeaderboard)
 }
 
+/**
+ * Handles the key press event and performs the corresponding action based on the key pressed.
+ *
+ * @param {KeyboardEvent} e - The key press event object.
+ * @return {void} This function does not return a value.
+ */
 function keyPressHandler(e) {
   window.addEventListener('keydown', e => {
     if (['ArrowUp', 'ArrowDown', ' '].includes(e.key)) {
-      e.preventDefault()
+      e.preventDefault()  //Prevent the browser from scrolling
     }
   })
   if (['ArrowDown','S', 's'].includes(e.key)) {
@@ -264,64 +348,113 @@ function keyPressHandler(e) {
   }
 }
 
+/**
+ * Pauses or resumes the game based on the current state of the timer.
+ *
+ * @param {object} timer - The timer object that controls the game's timing.
+ * @return {void} This function does not return a value.
+ */
 function pauseOrResumeGame(timer) {
   if (timer.run) {
     timer.run = false
-    tiles.forEach(tile => tile.classList.add('hidden'))
-    document.querySelector('.pause').textContent = 'RESUME'
+    hideAllTiles()
+    setPauseButtonText('RESUME')
   } else {
     timer.run = true
     timer.count()
-    tiles.forEach(tile => tile.classList.remove('hidden'))
-    document.querySelector('.pause').textContent = 'PAUSE'
+    showAllTiles()
+    setPauseButtonText('PAUSE')
   }
 }
 
-function toggleNumbers () {
-  document.querySelectorAll('.tile__number').forEach(numEl => {
-    if (numEl.classList.contains('hidden')) {
-      numEl.classList.remove('hidden')
-    } else {
-      numEl.classList.add('hidden')
-    }
+function hideAllTiles() {
+  tiles.forEach(tile => hideElement(tile))
+}
+
+function showAllTiles() {
+  tiles.forEach(tile => hideElement(tile, false))
+}
+
+function setPauseButtonText(text) {
+  document.querySelector('.pause').textContent = text
+}
+
+/**
+ * Toggles the visibility of all number elements visually on the tiles.
+ *
+ * @param {Element} numberElement - the number element to toggle visibility for
+ * @return {void} This function does not return a value
+ */
+function toggleNumbers() {
+  document.querySelectorAll('.tile__number').forEach(numberElement => {
+    numberElement.classList.toggle('hidden')
   })
 }
 
+/**
+ * Constructs a leaderboard by retrieving stored items from local storage 
+ * and sorting them based on timeInMsec and moves.
+ *
+ * @return {Array} The leaderboard array sorted by timeInMsec and moves.
+ */
 function constructLeaderboard() {
-  let userList = []
+  const leaderboard = []
+  
   for (let i = 0; i < window.localStorage.length; i++) {
-    if (window.localStorage.getItem(`lbd-${i}`)) {
-      userList.push(JSON.parse(window.localStorage.getItem(`lbd-${i}`)))
+    const itemKey = `lbd-${i}`
+    const storedItem = window.localStorage.getItem(itemKey)
+    
+    if (storedItem) {  // Check if the item exists
+      leaderboard.push(JSON.parse(storedItem))
     }
   }
-  userList.sort((a, b) => (a.timeInMsec > b.timeInMsec) ? 1 :((a.timeInMsec < b.timeInMsec) ? -1 : ((a.moves > b.moves) ? 1 : ((a.moves < b.moves) ? -1 : 0 ))))
-  return userList
+  
+  leaderboard.sort((a, b) => {
+    if (a.timeInMsec !== b.timeInMsec) {
+      return a.timeInMsec - b.timeInMsec
+    }
+    
+    return a.moves - b.moves
+  })
+  
+  return leaderboard
 }
 
+/**
+ * Displays the leaderboard on the screen.
+ *
+ * @return {undefined} This function does not return anything.
+ */
 function displayLeaderboard() {
-  let Leaderboard = constructLeaderboard()
-  document.querySelector('.leaderboard').classList.remove('hidden')
-  document.querySelector('.winner-alert').classList.add('hidden')
-  for (let i = 0; i < Math.min(3, Leaderboard.length); i++) {
-    document.querySelector(`.leaderboard__rank${i+1}-name`).textContent = Leaderboard[i].username
-    document.querySelector(`.leaderboard__rank${i+1}-time`).textContent = Leaderboard[i].time
-    document.querySelector(`.leaderboard__rank${i+1}-moves`).textContent = Leaderboard[i].moves
-    document.querySelector(`.leaderboard__rank${i+1}-date`).textContent = Leaderboard[i].date
-    document.querySelector(`.leaderboard__rank${i+1}-size`).textContent = Leaderboard[i].size
-    document.querySelector(`.leaderboard__rank${i+1}-cmode`).textContent = Leaderboard[i].challenge
+  let leaderboard = constructLeaderboard()
+  hideElement(document.querySelector('.leaderboard'), false)
+  hideElement(document.querySelector('.winner-alert'))
+  for (let i = 0; i < Math.min(3, leaderboard.length); i++) {
+    document.querySelector(`.leaderboard__rank${i+1}-name`).textContent = leaderboard[i].username
+    document.querySelector(`.leaderboard__rank${i+1}-time`).textContent = leaderboard[i].time
+    document.querySelector(`.leaderboard__rank${i+1}-moves`).textContent = leaderboard[i].moves
+    document.querySelector(`.leaderboard__rank${i+1}-date`).textContent = leaderboard[i].date
+    document.querySelector(`.leaderboard__rank${i+1}-size`).textContent = leaderboard[i].size
+    document.querySelector(`.leaderboard__rank${i+1}-cmode`).textContent = leaderboard[i].challenge
   }
 }
 
+/**
+ * Loads an image to the arena based on user selection.
+ *
+ * @return {undefined} This function does not return a value.
+ */
 function loadImgToArena() {
   let x = 2
   let clickablePics = document.querySelectorAll('.checkable-pic')
   for (let i = 1; i <= clickablePics.length; i++) {
     if (clickablePics[i-1].checked) {
+      //Getting the selected image
       x = i
       break
     }
   }
-  x === 5 ? document.querySelectorAll('.tile__number').forEach(numEl => numEl.classList.remove('hidden')) : 0
+  x === 5 ? document.querySelectorAll('.tile__number').forEach(numEl => hideElement(numEl, false)) : 0
   const tileArray = Array.from(document.querySelectorAll('.tile'))
   tileArray.forEach((tile) => {
     const tileRow = Math.floor((1*tile.dataset.value - 1)/ numCol)
@@ -331,16 +464,19 @@ function loadImgToArena() {
   })
 }
 
+/**
+ * Starts the game by setting up the board, initializing variables, and executing challenge functions.
+ */
 function startGame() {
   numRow = document.getElementById('boardsize-row').value
   numCol = document.getElementById('boardsize-col').value
 
-  document.querySelectorAll('.challenge-option').forEach((el, i) => {
-    el.checked ? challenge.push(i+1) : 0
+  document.querySelectorAll('.challenge-option').forEach((el, index) => {
+    el.checked ? challenge.push(index + 1) : 0
   })
 
-  document.querySelectorAll('.theme-option').forEach((el, i) => {
-    el.checked ? (themeChoice = i + 1) : 0
+  document.querySelectorAll('.theme-option').forEach((el, index) => {
+    el.checked ? (themeChoice = index + 1) : 0
   })
 
   solArray = Array.from({length: numRow * numCol - 1}, (_, k) => k + 1);  solArray.push(0)
@@ -348,21 +484,26 @@ function startGame() {
 
   setArena()
 
-  document.querySelectorAll('.tile').forEach(tile => tile.style.transform = 'translateX(0%) translateY(0%)')
-  document.querySelectorAll('.blank').forEach(tile => tile.style.transform = 'translateX(0%) translateY(0%)')
-
-  loadImgToArena()
-
   tiles = document.querySelectorAll('.tile')
   blankTile = document.querySelector('.blank')
 
-  document.querySelector('.welcome').classList.add('hidden')
-  document.querySelector('.overlay').classList.add('hidden')
+  tiles.forEach(tile => tile.style.transform = 'translateX(0%) translateY(0%)')
+  blankTile.style.transform = 'translateX(0%) translateY(0%)'
+
+  loadImgToArena()
+
+  hideElement(welcomePage)
+  hideElement(overlay)
 
   setTheme()
   executeChallenges()
 }
 
+/**
+ * Freezes a random selection of tiles on the page for a period of time.
+ *
+ * @return {void} This function does not return a value.
+ */
 function freezeRandomTiles() {
   const tiles = Array.from(document.querySelectorAll('.tile'))
   const frozenTiles = []
@@ -392,12 +533,30 @@ function freezeRandomTiles() {
 
 }
 
+/**
+ * Debits the player's time and moves based on the given time and move values.
+ *
+ * @param {number} timeInSec - The amount of time in seconds to be added to the player's total time.
+ * @param {number} move - The number of moves to be added to the player's total moves.
+ */
 function imposePenalty(timeInSec, move) {
   playerTime.totMsec += timeInSec * 100
   playerTime.sec += timeInSec
   moves += move
 }
 
+/**
+ * If the challenge includes level 2:
+ *   - Sets the minimum board size to 5x5.
+ *   - Sets the default board size to 5x5.
+ *   - Changes the images displayed.
+ *   - Enables image upload.
+ * If the challenge does not include level 2:
+ *   - Sets the minimum board size to 2x2.
+ *   - Sets the default board size to 4x4.
+ *   - Changes the images displayed.
+ *   - Disables image upload.
+ */
 function challengeLevel2() {
   if (challenge.includes(2)) {
     //Setting min board size to 5*5
@@ -430,9 +589,16 @@ function challengeLevel2() {
 
 }
 
+/**
+ * On pressing the surrender button, if the puzzle was unsolvable, alert is displayed, else it's treated as winner-move.
+ *
+ * @param {None} No parameters are required.
+ * @return {None} The function does not return any value.
+ */
 function challengeImpossible() {
-  document.querySelector('.surrender').classList.remove('hidden')
-  document.querySelector('.surrender').addEventListener('click', () => {
+  const surrenderButton = document.querySelector('.surrender')
+  hideElement(surrenderButton, false)
+  surrenderButton.addEventListener('click', () => {
     if (solvability) {
       if(!alert('Puzzle was solvable! :-(')) {
         window.location.reload()
@@ -444,6 +610,8 @@ function challengeImpossible() {
 }
 
 function executeChallenges() {
+  
+  //For challenge mode 1
   if (challenge.includes(1)) {
     observer = new MutationObserver(mutations => {
       mutations.forEach(mutation => {
@@ -458,23 +626,34 @@ function executeChallenges() {
     })
     setInterval(freezeRandomTiles, 15000)
   }
+  
+  //For challenge mode 3
   if (challenge.includes(3)) {
     challengeImpossible()
   }
 }
 
+/**
+ * Sets the theme based on the value of themeChoice.
+ *
+ * @param {number} themeChoice - The value indicating the chosen theme.
+ */
 function setTheme() {
+  const bodyStyle = document.body.style
   if (themeChoice == 2) {
-    document.body.style.fontFamily = "'Press Start 2P', cursive"
-    document.body.style.backgroundColor = 'black'
-    document.body.style.backgroundImage = 'none'
-    document.body.style.color = 'white'
+    bodyStyle.fontFamily = "'Press Start 2P', cursive"
+    bodyStyle.backgroundColor = 'black'
+    bodyStyle.backgroundImage = 'none'
+    bodyStyle.color = 'white'
   } else if (themeChoice == 3) {
-    document.body.style.fontFamily = "'Lato', sans-serif"
-    document.body.style.backgroundImage = "url('assets/bg-3.jpg')"
+    bodyStyle.fontFamily = "'Lato', sans-serif"
+    bodyStyle.backgroundImage = "url('assets/bg-3.jpg')"
   }
 }
 
+/**
+ * Loads the user uploaded image.
+ */
 function loadUserImg() {
   window.addEventListener('load', function() {
     document.querySelector('input[type="file"]').addEventListener('change', function() {
@@ -488,6 +667,7 @@ function loadUserImg() {
 }
 
 /********************************Main Code****************************  */
+
 loadUserImg()
 setWelcomePage()
 markCheckedOptions()
