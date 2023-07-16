@@ -1,13 +1,33 @@
-/*************************************************   */
+/********************Global Variable Declarations*********************/
+
+let solvability  //Is the generated puzzle solvable ?
+const challenge = []  //1 for subzero, 2 for level-2, 3 for mission:impossible
+let themeChoice = 1  //1: Modern, 2:Classic, 3:Minimalist
+let numRow = 4
+let numCol = 4
+let moves = 0
+let playerTime
+let rankCurr  //Most recent score of player //Of class: UserScore
+let solArray  //solution array
+let dataArray  //The shuffled array
+let tiles
+let blankTile
+let uploadedImgSrc  //src of image uploaded by user, if any
+let observer  //for tracking freezed tile moves in subzero challenge
+const imgUrl = (x) => (challenge.includes(2) ? (x !== 5 ?  `url('assets/img-${x + 5}.jpg')` : `url('${uploadedImgSrc}')`) : `url('assets/img-${x}.jpg')`)
+
+const arenaTable = document.querySelector('.arena__table')
+
+/********************* Class Definitions ****************************   */
 
 class timer {
   constructor() {
     this.msec = 0
     this.sec = 0
     this.mins = 0
-    this.run = true
-    this.totMsec = 0
-    this.time = ''
+    this.run = true  //true if timer is running
+    this.totMsec = 0  //100Msec == 1sec, not 'milliseconds'
+    this.time = ''  //Time in string format
   }
 count(){
   if (this.run) {
@@ -22,9 +42,9 @@ count(){
       this.sec = this.sec % 60
     }
     this.time = `${('0'+this.mins).slice(-2)} : ${('0'+this.sec).slice(-2)} . ${this.msec}`
-    document.querySelector('#time').textContent = this.time
-    document.querySelector('#moves').textContent = moves
-    setTimeout(this.count.bind(this), 10)
+    document.querySelector('#time').textContent = this.time  //Updates the timer display
+    document.querySelector('#moves').textContent = moves  //Updates the moves display
+    setTimeout(this.count.bind(this), 10)  //Runs every 10milliseconds
   }
 }
 }
@@ -33,7 +53,7 @@ class userScore {
   constructor(timeInMsec, time, moves) {
     try {
       this.username = navigator.userAgentData.platform
-    } catch (e) {
+    } catch (e) {  //Error if browser blocks access to '.platform' in insecure connections
       this.username = 'Captain Anonymous'
     }
     this.timeInMsec = timeInMsec
@@ -49,6 +69,45 @@ class userScore {
 }
 
 /************************Function Definitions**********************/
+
+function markCheckedOptions() {
+  document.querySelector('.welcome').querySelectorAll('label').forEach(()=>{addEventListener('click', () => {
+    document.querySelectorAll('.checkable-text').forEach(el => {
+      el.checked ? document.querySelector('.' + el.id + '-label').style.color = 'gold' : document.querySelector('.' + el.id + '-label').style.color = 'aquamarine'
+    })
+    document.querySelectorAll('.checkable-pic').forEach(el => {
+      el.checked ? document.querySelector('.' + el.id + '-label').style.outline = 'solid 1px gold' : document.querySelector('.' + el.id + '-label').style.outline = 'none'
+    })
+  })})
+}
+
+function setGamePage () {
+  arenaTable.addEventListener('click', (e) => playTiles(e.target.closest('.tile').dataset))
+  document.addEventListener('keydown', (e) => keyPressHandler(e))
+  document.querySelector('.pause').addEventListener('click', () => pauseOrResumeGame(playerTime))
+  document.querySelector('.toggle-mode').addEventListener('click', toggleNumbers)
+}
+
+function setWelcomePage () {
+  document.querySelector('.welcome__proceed-start').addEventListener('click', startGame)
+  document.querySelector('.welcome__proceed-howto').addEventListener('click', () => {
+    document.querySelector('.welcome').classList.add('hidden')
+    document.querySelector('.how-to-play').classList.remove('hidden')
+  })
+  document.querySelector('.back-to-welcome').addEventListener('click', () => {
+    document.querySelector('.welcome').classList.remove('hidden')
+    document.querySelector('.how-to-play').classList.add('hidden')
+  })
+  document.querySelector('.challenge-level2-label').addEventListener('click', () => {
+    if (challenge.includes(2)) {
+      challenge.pop(2)
+      challengeLevel2()
+    } else {
+      challenge.push(2)
+      challengeLevel2()
+    }
+  })
+}
 
 function shuffleArray(array, solvable = true) {
   const getInversions = (arr) => {
@@ -83,15 +142,6 @@ function shuffleArray(array, solvable = true) {
   return arrayCopy
 }
 
-/**
-* Generates an HTML string representing the arena table based on the given data array.
-*
-* @param {number} numRow - the number of rows in the arena
-* @param {number} numCol - the number of columns in the arena
-* @param {Array} dataArray - the data array representing the arena
-* @param {HTMLElement} arenaTable - the HTML element where the arena table will be displayed
-* @return {void} 
-*/
 function setArena() {
   let outputString = ''
   for(let i = 0; i < numRow; i++){
@@ -109,7 +159,6 @@ function setArena() {
   playerTime = new timer()
   playerTime.count()
 }
-
 
 function moveVertical (tile, step, animate = true) {
   tile.dataset.row = Number(tile.dataset.row) - step
@@ -438,64 +487,8 @@ function loadUserImg() {
   })
 }
 
-
-/********************Global Variable Declarations*********************/
-
-let solvability
-const challenge = []  //1 for subzero, 2 for level-2, 3 for mission:impossible
-let themeChoice  //1: Modern, 2:Classic, 3:Minimalist
-let numRow = 4
-let numCol = 4
-let moves = 0
-let playerTime
-let rankCurr
-let solArray
-let dataArray
-let tiles
-let blankTile
-let uploadedImgSrc
-let observer
-const imgUrl = (x) => (challenge.includes(2) ? (x !== 5 ?  `url('assets/img-${x + 5}.jpg')` : `url('${uploadedImgSrc}')`) : `url('assets/img-${x}.jpg')`)
-
-const arenaTable = document.querySelector('.arena__table')
-
-
 /********************************Main Code****************************  */
 loadUserImg()
-document.querySelector('.welcome__proceed-start').addEventListener('click', startGame)
-document.querySelector('.welcome__proceed-howto').addEventListener('click', () => {
-  document.querySelector('.welcome').classList.add('hidden')
-  document.querySelector('.how-to-play').classList.remove('hidden')
-})
-document.querySelector('.back-to-welcome').addEventListener('click', () => {
-  document.querySelector('.welcome').classList.remove('hidden')
-  document.querySelector('.how-to-play').classList.add('hidden')
-})
-
-document.querySelector('.challenge-level2-label').addEventListener('click', () => {
-  if (challenge.includes(2)) {
-    challenge.pop(2)
-    challengeLevel2()
-  } else {
-    challenge.push(2)
-    challengeLevel2()
-  }
-})
-
-//////////////////////////  AT START  ////////////////////////////
-document.querySelector('.welcome').querySelectorAll('label').forEach(()=>{addEventListener('click', () => {
-  document.querySelectorAll('.checkable-text').forEach(el => {
-    el.checked ? document.querySelector('.' + el.id + '-label').style.color = 'gold' : document.querySelector('.' + el.id + '-label').style.color = 'aquamarine'
-  })
-  document.querySelectorAll('.checkable-pic').forEach(el => {
-    el.checked ? document.querySelector('.' + el.id + '-label').style.outline = 'solid 1px gold' : document.querySelector('.' + el.id + '-label').style.outline = 'none'
-  })
-})})
-////////////////////////////////////////////////////////////////////
-
-arenaTable.addEventListener('click', (e) => playTiles(e.target.closest('.tile').dataset))
-document.addEventListener('keydown', (e) => keyPressHandler(e))
-document.querySelector('.pause').addEventListener('click', () => pauseOrResumeGame(playerTime))
-document.querySelector('.toggle-mode').addEventListener('click', toggleNumbers)
-
-//////////////////////////  SET IMG    /////////////////////////////
+setWelcomePage()
+markCheckedOptions()
+setGamePage()
