@@ -23,6 +23,10 @@ html {
   visibility: hidden;
   opacity: 0; }
 
+::selection {
+  color: greenyellow;
+  background: none; }
+
 body {
   font-family: 'Orbitron', sans-serif;
   background-image: linear-gradient(to right, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.45)), url("../../assets/bg-1.png");
@@ -101,6 +105,23 @@ body {
         background-color: aqua;
         mix-blend-mode: difference; }
 
+.how-to-play {
+  text-align: justify;
+  overflow-x: hidden;
+  padding: 3rem;
+  color: aqua;
+  letter-spacing: 1.2px;
+  word-spacing: 1.5px; }
+
+.back-to-welcome {
+  margin: 3rem;
+  text-align: center;
+  color: burlywood;
+  cursor: pointer;
+  transition: all .1s; }
+  .back-to-welcome:hover {
+    transform: scale(1.1) translateY(-3px); }
+
 .input-tags {
   display: none; }
 
@@ -175,6 +196,8 @@ body {
   border: .4rem solid black;
   text-align: center;
   border-spacing: 0;
+  -webkit-backdrop-filter: blur(15px);
+  backdrop-filter: blur(15px);
   background-size: cover; }
   @media only screen and (max-width: 32.725em) {
     .arena__img, .arena__table {

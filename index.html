@@ -86,7 +86,7 @@
                     <label for="pic2"><img src="assets/img-2.jpg" alt="Apples" class="pic2-label"></label>
                     <label for="pic3"><img src="assets/img-3.jpg" alt="Victory" class="pic3-label"></label>
                     <label for="pic4"><img src="assets/img-4.jpg" alt="Chess" class="pic4-label"></label>
-                    <label for="pic5"><img src="assets/img-5-c.jpg" alt="Just numbers" class="pic5-label"></label>
+                    <label for="pic5" id="imageUploader"><img src="assets/img-5-c.jpg" alt="Just numbers" class="pic5-label"></label>
                 </div>
             </div>
             <div class="welcome__select-mode">
@@ -108,22 +108,52 @@
                 <p class="welcome__proceed-start">>> START <<</p> 
             </div>
         </div>
+        <div class="how-to-play hidden alert-box">
+            <p>Welcome to the exciting world of SlideQuest! Whether you prefer a modern, classic, or minimalist theme, this sliding puzzle game offers a variety of challenges to test your skills. Let's dive into the gameplay mechanics and available challenges:</p>
+            <p>1. Themes:</p>
+            <ul>
+            <li>Modern: Immerse yourself in a sleek and contemporary design, featuring vibrant colors and eye-catching visuals.</li>
+            <li>Classic: Enjoy a nostalgic experience with a timeless aesthetic, reminiscent of traditional puzzle games.</li>
+            <li>Minimalist: Embrace simplicity and elegance through a clean and minimalist theme that focuses on the essence of the gameplay.</li>
+            </ul>
+
+            <p>2. Challenges:</p>
+            <p>You can select one or more challenges to customize your SlideQuest experience.</p>
+            <ul>
+            <li>Subzero Challenge: Brace yourself for the Subzero Challenge, where random tiles freeze for a few seconds. Be cautious while moving frozen tiles, as it incurs a penalty of 10 seconds in time and 2 additional moves.</li>
+            <li>Level-2 Challenge: Take your puzzle-solving skills to the next level in the Level-2 Challenge. Experience a new set of pictures and face the increased difficulty of a minimum board size of 5x5.</li>
+            <li>Mission: Impossible Challenge: Prepare for the ultimate challenge with the Mission: Impossible mode. This daring challenge doesn't guarantee solvability. However, if you believe the puzzle to be unsolvable, you can submit it as such with the click of a button.</li>
+            </ul>
+            <p>3. Controls:</p>
+            <ul>
+            <li>Arrow keys or WASD keys: Use the arrow keys or WASD keys to move the blank tile in the corresponding direction (up, down, left, or right).</li>
+            <li>Mouse: Click on a tile adjacent to the blank tile to move it. If the clicked tile is not directly adjacent to the blank tile, all the tiles in the same row or column between them will move together.</li>
+            </ul>
+            <p>4. Own Image: Want to personalize your SlideQuest experience? You can use your own image as the puzzle background. Just make sure the image is uploaded in a square format with a size of 560px by 560px.</p>
+
+            <p>5. Leaderboard: After successfully completing a puzzle, you'll have the opportunity to showcase your achievements on the leaderboard. Check out the top 3 scores and strive to claim a spot among the best puzzle solvers!</p>
+
+            <p>Now that you're familiar with the game's features and challenges, it's time to embark on a thrilling journey of sliding puzzle mastery. Get ready to challenge your mind, test your agility, and discover the joy of conquering SlideQuest!</p>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Libero ipsum eligendi temporibus repellendus veritatis minima aspernatur eaque exercitationem non quasi nobis omnis nihil repellat obcaecati commodi, quidem beatae, quod nesciunt?</p>
+            <div class="back-to-welcome">BACK</div>
+        </div>
     </div>
     <div class="overlay">
         &nbsp;
     </div>
     <div class="input-tags">
-        <input type="radio" id="theme1" name="theme" class="checkable-text" checked>
-        <input type="radio" id="theme2" name="theme" class="checkable-text">
-        <input type="radio" id="theme3" name="theme" class="checkable-text">
-        <input type="radio" id="pic1" name="playpic" class="checkable-pic">
-        <input type="radio" id="pic2" name="playpic" class="checkable-pic" checked>
-        <input type="radio" id="pic3" name="playpic" class="checkable-pic">
-        <input type="radio" id="pic4" name="playpic" class="checkable-pic">
-        <input type="radio" id="pic5" name="playpic" class="checkable-pic">
-        <input type="checkbox" name="challenge" id="challenge-subzero" class="challenge-option checkable-text" value="SUBZERO">
-        <input type="checkbox" name="challenge" id="challenge-level2" class="challenge-option checkable-text" value="LEVEL2">
-        <input type="checkbox" name="challenge" id="challenge-impossible" class="challenge-option checkable-text" value="MISSION:IMPOSSIBLE">
+        <input type="radio" id="theme1" name="theme" class="theme-option checkable-text" checked />
+        <input type="radio" id="theme2" name="theme" class="theme-option checkable-text" />
+        <input type="radio" id="theme3" name="theme" class="theme-option checkable-text" />
+        <input type="radio" id="pic1" name="playpic" class="checkable-pic" />
+        <input type="radio" id="pic2" name="playpic" class="checkable-pic" checked />
+        <input type="radio" id="pic3" name="playpic" class="checkable-pic" />
+        <input type="radio" id="pic4" name="playpic" class="checkable-pic" />
+        <input type="radio" id="pic5" name="playpic" class="checkable-pic" />
+        <input type="checkbox" name="challenge" id="challenge-subzero" class="challenge-option checkable-text" value="SUBZERO" />
+        <input type="checkbox" name="challenge" id="challenge-level2" class="challenge-option checkable-text" value="LEVEL2" />
+        <input type="checkbox" name="challenge" id="challenge-impossible" class="challenge-option checkable-text" value="MISSION:IMPOSSIBLE" />
+        <input type="file" name="uploadedImg" id="uploadedImg-pic" />
     </div>
     <div class="surrender hidden">
         <p>UNSOLVABLE</p>

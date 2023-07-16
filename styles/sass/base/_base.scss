@@ -8,6 +8,7 @@ html{
     font-size: 100%;
     scroll-behavior: smooth;
 
+
     @include mQ(tab-l) {
         font-size: 85%;
     }
@@ -27,3 +28,10 @@ html{
     visibility: hidden;
     opacity: 0;
 }
+
+        
+::selection {
+    color: greenyellow;
+    background: none;
+}
+

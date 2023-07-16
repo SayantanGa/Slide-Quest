@@ -23,6 +23,7 @@ count(){
     }
     this.time = `${('0'+this.mins).slice(-2)} : ${('0'+this.sec).slice(-2)} . ${this.msec}`
     document.querySelector('#time').textContent = this.time
+    document.querySelector('#moves').textContent = moves
     setTimeout(this.count.bind(this), 10)
   }
 }
@@ -30,7 +31,11 @@ count(){
 
 class userScore {
   constructor(timeInMsec, time, moves) {
-    this.username = navigator.userAgentData.platform
+    try {
+      this.username = navigator.userAgentData.platform
+    } catch (e) {
+      this.username = 'Captain Anonymous'
+    }
     this.timeInMsec = timeInMsec
     this.time = time
     this.moves = moves
@@ -44,11 +49,6 @@ class userScore {
 }
 
 /************************Function Definitions**********************/
-
-function incrementMoves(){
-  moves++;
-  document.querySelector('#moves').textContent = moves
-}
 
 function shuffleArray(array, solvable = true) {
   const getInversions = (arr) => {
@@ -170,7 +170,7 @@ function playTiles(clickedTilePos) {
     }
     moveHorizontal(blankTile, -targetMove[1], false)
   }
-  incrementMoves()
+  moves++
   if (isWinnerMove()) {
     displayWin()
   }
@@ -199,6 +199,11 @@ function displayWin() {
 }
 
 function keyPressHandler(e) {
+  window.addEventListener('keydown', e => {
+    if (['ArrowUp', 'ArrowDown', ' '].includes(e.key)) {
+      e.preventDefault()
+    }
+  })
   if (['ArrowDown','S', 's'].includes(e.key)) {
     playTiles(tileAtPos(1 * blankTile.dataset.row + 1, 1 * blankTile.dataset.col).dataset)
   } else if (['ArrowUp','W', 'w'].includes(e.key)) {
@@ -285,6 +290,10 @@ function startGame() {
     el.checked ? challenge.push(i+1) : 0
   })
 
+  document.querySelectorAll('.theme-option').forEach((el, i) => {
+    el.checked ? (themeChoice = i + 1) : 0
+  })
+
   solArray = Array.from({length: numRow * numCol - 1}, (_, k) => k + 1);  solArray.push(0)
   dataArray = shuffleArray(solArray, !challenge.includes(3))
 
@@ -301,6 +310,7 @@ function startGame() {
   document.querySelector('.welcome').classList.add('hidden')
   document.querySelector('.overlay').classList.add('hidden')
 
+  setTheme()
   executeChallenges()
 }
 
@@ -319,6 +329,7 @@ function freezeRandomTiles() {
   // Apply freeze style to the selected tiles
   frozenTiles.forEach(index => {
     tiles[index].classList.add('frozen')
+      observer.observe(tiles[index], { attributes: true })
   })
 
   // Remove freeze after 10 seconds
@@ -326,24 +337,10 @@ function freezeRandomTiles() {
     frozenTiles.forEach(index => {
       tiles[index].classList.remove('frozen')
     })
+    // Stop observing the tiles for attribute changes
+    observer.disconnect()
   }, 10000)
 
-  const observer = new MutationObserver(mutations => {
-    mutations.forEach(mutation => {
-      // Check if the mutation is for the dataset.row or dataset.col attribute
-      if (
-        mutation.attributeName === 'data-row' ||
-        mutation.attributeName === 'data-col'
-      ) {
-        imposePenalty(10, 2);
-      }
-    });
-  });
-  
-  // Start observing the tiles for attribute changes
-  tiles.forEach(tile => {
-    observer.observe(tile, { attributes: true });
-  });
 }
 
 function imposePenalty(timeInSec, move) {
@@ -363,6 +360,10 @@ function challengeLevel2() {
     for (let i = 1; i < 5; i++) {
       document.querySelector(`.pic${i}-label`).src = `assets/img-${i + 5}.jpg`
     }
+    //Enabling img upload
+    document.querySelector('#imageUploader').htmlFor = 'uploadedImg-pic'
+    document.querySelector(`.pic5-label`).src = 'assets/img-10-c.jpg'
+
   } else {
     //Setting min board size to 5*5
     document.getElementById('boardsize-row').min = 2
@@ -373,6 +374,9 @@ function challengeLevel2() {
     for (let i = 1; i < 5; i++) {
       document.querySelector(`.pic${i}-label`).src = `assets/img-${i}.jpg`
     }
+    //Disabling img upload
+    document.querySelector('#imageUploader').htmlFor = 'pic-5'
+    document.querySelector(`.pic5-label`).src = 'assets/img-5-c.jpg'
   }
 
 }
@@ -392,6 +396,17 @@ function challengeImpossible() {
 
 function executeChallenges() {
   if (challenge.includes(1)) {
+    observer = new MutationObserver(mutations => {
+      mutations.forEach(mutation => {
+        // Check if the mutation is for the dataset.row or dataset.col attribute
+        if (
+          mutation.attributeName === 'data-row' ||
+          mutation.attributeName === 'data-col'
+        ) {
+          imposePenalty(10, 2)
+        }
+      })
+    })
     setInterval(freezeRandomTiles, 15000)
   }
   if (challenge.includes(3)) {
@@ -399,12 +414,36 @@ function executeChallenges() {
   }
 }
 
+function setTheme() {
+  if (themeChoice == 2) {
+    document.body.style.fontFamily = "'Press Start 2P', cursive"
+    document.body.style.backgroundColor = 'black'
+    document.body.style.backgroundImage = 'none'
+    document.body.style.color = 'white'
+  } else if (themeChoice == 3) {
+    document.body.style.fontFamily = "'Lato', sans-serif"
+    document.body.style.backgroundImage = "url('assets/bg-3.jpg')"
+  }
+}
+
+function loadUserImg() {
+  window.addEventListener('load', function() {
+    document.querySelector('input[type="file"]').addEventListener('change', function() {
+        //Checking on img upload
+        document.querySelector('#pic5').checked = true
+        if (this.files && this.files[0]) {
+            uploadedImgSrc = URL.createObjectURL(this.files[0])
+        }
+    })
+  })
+}
 
 
 /********************Global Variable Declarations*********************/
 
 let solvability
 const challenge = []  //1 for subzero, 2 for level-2, 3 for mission:impossible
+let themeChoice  //1: Modern, 2:Classic, 3:Minimalist
 let numRow = 4
 let numCol = 4
 let moves = 0
@@ -414,13 +453,24 @@ let solArray
 let dataArray
 let tiles
 let blankTile
-const imgUrl = (x) => challenge.includes(2) ? `url('assets/img-${x + 5}.jpg')` : `url('assets/img-${x}.jpg')`
+let uploadedImgSrc
+let observer
+const imgUrl = (x) => (challenge.includes(2) ? (x !== 5 ?  `url('assets/img-${x + 5}.jpg')` : `url('${uploadedImgSrc}')`) : `url('assets/img-${x}.jpg')`)
 
 const arenaTable = document.querySelector('.arena__table')
 
 
 /********************************Main Code****************************  */
+loadUserImg()
 document.querySelector('.welcome__proceed-start').addEventListener('click', startGame)
+document.querySelector('.welcome__proceed-howto').addEventListener('click', () => {
+  document.querySelector('.welcome').classList.add('hidden')
+  document.querySelector('.how-to-play').classList.remove('hidden')
+})
+document.querySelector('.back-to-welcome').addEventListener('click', () => {
+  document.querySelector('.welcome').classList.remove('hidden')
+  document.querySelector('.how-to-play').classList.add('hidden')
+})
 
 document.querySelector('.challenge-level2-label').addEventListener('click', () => {
   if (challenge.includes(2)) {

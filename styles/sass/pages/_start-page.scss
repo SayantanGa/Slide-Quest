@@ -121,6 +121,27 @@
     }
 }
 
+.how-to-play {
+    text-align: justify;
+    overflow-x: hidden;
+    padding: 3rem;
+    color: aqua;
+    letter-spacing: 1.2px;
+    word-spacing: 1.5px;
+}
+
+.back-to-welcome {
+    margin: 3rem;
+    text-align: center;
+    color: burlywood;
+    cursor: pointer;
+    transition: all .1s;
+
+    &:hover {
+        transform: scale(1.1) translateY(-3px);
+    }
+}
+
 .input-tags {
     display: none;
 }

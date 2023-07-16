@@ -12,6 +12,8 @@
         border: .4rem solid black;
         text-align:center;
         border-spacing: 0;
+        -webkit-backdrop-filter: blur(15px);
+        backdrop-filter: blur(15px);
 
         background-size: cover;
 
